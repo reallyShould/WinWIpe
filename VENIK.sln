@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VENIK", "VENIK.csproj", "{72264A1C-3122-46B3-A433-B86E5BE59EA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8FD1FF3-6CB8-44B2-A5AB-62E64365CAF4}
+	EndGlobalSection
+EndGlobal
