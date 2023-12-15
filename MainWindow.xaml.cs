@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,8 +22,20 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+
     public partial class MainWindow : Window
     {
+        enum RecycleFlags : uint
+        {
+            SHERB_NOCONFIRMATION = 0x00000001,
+            SHERB_NOPROGRESSUI = 0x00000002,
+            SHERB_NOSOUND = 0x00000004
+        }
+        [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
+        static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
+
+
         public string customFolder = null;
         public int counter = 0;
         public string start_message = "=================\nVENIK by reallyShould\nVersion 0.0.1\n=================\n";
@@ -51,23 +64,44 @@ namespace WpfApp1
 
         private void clean_custom_folder(string dir)
         {
-            try
+            foreach (var file in Directory.GetFiles(dir))
             {
-                foreach (var file in Directory.GetFiles(dir))
+                try
                 {
                     File.Delete(file);
                     add_log($"File {file} deleted");
                 }
-                foreach (var subdir in Directory.GetDirectories(dir))
+                catch (Exception ex)
                 {
-                    clean_custom_folder(subdir);
+                    add_log($"Error: {ex.Message}");
+                    continue;
                 }
+            }
+            foreach (var subdir in Directory.GetDirectories(dir))
+            {
+                clean_custom_folder(subdir);
+            }
+            try { 
                 Directory.Delete(dir);
                 add_log($"Dir {dir} deleted");
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) 
+            { 
                 add_log($"Error: {ex.Message}");
+            }
+        }
+ 
+
+        private void clean_recycle()
+        {
+            uint result = SHEmptyRecycleBin(IntPtr.Zero, null, 0);
+            if (result != 0)
+            {
+                add_log("Recycle bin error");
+            }
+            else
+            {
+                add_log("Recycle bin clean");
             }
         }
 
@@ -113,6 +147,16 @@ namespace WpfApp1
             {
                 add_log("Custom folder cleaning\n");
                 clean_custom_folder(customFolder);
+            }
+            if (clear_tmp_chk.IsChecked == true)
+            {
+                clean_custom_folder("C:\\Users\\reallyShould\\AppData\\Local\\Temp");
+            }
+
+            if (clear_recycle.IsChecked == true)
+            {
+                add_log("Recycle bin cleaning\n");
+                clean_recycle();
             }
             add_log("sep");
             add_log("Clean end");
