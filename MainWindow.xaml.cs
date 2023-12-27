@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -69,11 +70,11 @@ namespace WpfApp1
                 try
                 {
                     File.Delete(file);
-                    add_log($"File {file} deleted");
+                    this.Dispatcher.Invoke(new Action(() => add_log($"[OK] File {file} deleted")));
                 }
                 catch (Exception ex)
                 {
-                    add_log($"Error: {ex.Message}");
+                    this.Dispatcher.Invoke(new Action( () => add_log($"[Error] {ex.Message}") ));
                     continue;
                 }
             }
@@ -83,11 +84,11 @@ namespace WpfApp1
             }
             try { 
                 Directory.Delete(dir);
-                add_log($"Dir {dir} deleted");
+                this.Dispatcher.Invoke(new Action(() => add_log($"[OK] Dir {dir} deleted")));
             }
             catch (Exception ex) 
-            { 
-                add_log($"Error: {ex.Message}");
+            {
+                this.Dispatcher.Invoke(new Action(() => add_log($"[Error] {ex.Message}")));
             }
         }
  
@@ -97,11 +98,11 @@ namespace WpfApp1
             uint result = SHEmptyRecycleBin(IntPtr.Zero, null, 0);
             if (result != 0)
             {
-                add_log("Recycle bin error");
+                add_log("[Error] Recycle bin error");
             }
             else
             {
-                add_log("Recycle bin clean");
+                add_log("[OK] Recycle bin clean");
             }
         }
 
@@ -146,20 +147,18 @@ namespace WpfApp1
             if (clear_custom_folder_chk.IsChecked == true)
             {
                 add_log("Custom folder cleaning\n");
-                clean_custom_folder(customFolder);
+                Task.Run(() => clean_custom_folder(customFolder));
             }
             if (clear_tmp_chk.IsChecked == true)
             {
-                clean_custom_folder("C:\\Users\\reallyShould\\AppData\\Local\\Temp");
+                Task.Run(() => clean_custom_folder("C:\\Users\\reallyShould\\AppData\\Local\\Temp"));
             }
 
             if (clear_recycle.IsChecked == true)
             {
                 add_log("Recycle bin cleaning\n");
-                clean_recycle();
+                Task.Run(() => clean_recycle());
             }
-            add_log("sep");
-            add_log("Clean end");
         }
     }
 }
