@@ -23,7 +23,15 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     /// https://colorhunt.co/palette/0926351b42425c83749ec8b9
+    /// TODO
+    /// System info
+    /// Win logs
+    /// Web chache 
+    /// Downloads
+    /// Fix scrollbar
+    /// Status bar
 
     public partial class MainWindow : Window
     {
@@ -40,6 +48,7 @@ namespace WpfApp1
         public string customFolder = null;
         public int counter = 0;
         public string start_message = "=================\nVENIK by reallyShould\nVersion 0.0.1\n=================\n";
+        public string user_name = Environment.UserName;
 
         List<string> apps = new List<string>() { ".exe", ".msi" };
         List<string> audio = new List<string>() { ".mp3", ".wav", ".ogg", ".aac", ".flac", ".alac", ".dsd" };
@@ -55,6 +64,7 @@ namespace WpfApp1
             selectScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             statusBar.Value = 100;
             logs.Text = start_message;
+            this.Title = $"VENIK 0.0.1 [{user_name}]";
             if(customFolder == null)
             {
                 clear_custom_folder_chk.IsEnabled = false;
@@ -70,11 +80,11 @@ namespace WpfApp1
                 try
                 {
                     File.Delete(file);
-                    this.Dispatcher.Invoke(new Action(() => add_log($"[OK] File {file} deleted")));
+                    add_log($"[OK] File {file} deleted");
                 }
                 catch (Exception ex)
                 {
-                    this.Dispatcher.Invoke(new Action( () => add_log($"[Error] {ex.Message}") ));
+                    add_log($"[Error] {ex.Message}");
                     continue;
                 }
             }
@@ -84,18 +94,18 @@ namespace WpfApp1
             }
             try { 
                 Directory.Delete(dir);
-                this.Dispatcher.Invoke(new Action(() => add_log($"[OK] Dir {dir} deleted")));
+                add_log($"[OK] Dir {dir} deleted");
             }
             catch (Exception ex) 
             {
-                this.Dispatcher.Invoke(new Action(() => add_log($"[Error] {ex.Message}")));
+                add_log($"[Error] {ex.Message}");
             }
         }
  
 
         private void clean_recycle()
         {
-            uint result = SHEmptyRecycleBin(IntPtr.Zero, null, 0);
+            uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
             if (result != 0)
             {
                 add_log("[Error] Recycle bin error");
@@ -109,10 +119,9 @@ namespace WpfApp1
         //BUTTONS EVENTS
         private void add_log(string message)
         {
-            if (logs.Text == "Logs") { logs.Text += "\n"; }
             if (string.IsNullOrEmpty(message)) 
             { 
-                logs.Text = string.Empty; 
+                this.Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
             }
             else if (message == "sep")
             {
@@ -120,9 +129,9 @@ namespace WpfApp1
             }
             else 
             { 
-                logs.Text = logs.Text + message + "\n"; 
+                this.Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
             }
-            logScroll.ScrollToEnd();
+            this.Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
         }
 
         private void btn_change_custom_folder(object sender, RoutedEventArgs e)
@@ -151,7 +160,7 @@ namespace WpfApp1
             }
             if (clear_tmp_chk.IsChecked == true)
             {
-                Task.Run(() => clean_custom_folder("C:\\Users\\reallyShould\\AppData\\Local\\Temp"));
+                Task.Run(() => clean_custom_folder($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
             }
 
             if (clear_recycle.IsChecked == true)

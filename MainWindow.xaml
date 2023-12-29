@@ -45,6 +45,6 @@
             <Label Content="VENIK" Height="50" Width="180" Margin="-310,0,0,30" FontSize="43" FontFamily="Bahnschrift" VerticalContentAlignment="Stretch" Foreground="#9EC8B9"/>
             <Label Content="by reallyShould" Height="25" Width="100" Margin="-390,40,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#5C8374"/>
         </Grid>
-        
+
     </Grid>
 </Window>
