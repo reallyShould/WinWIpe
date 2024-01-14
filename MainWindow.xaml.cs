@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -32,6 +33,7 @@ namespace WpfApp1
     /// Downloads
     /// Fix scrollbar
     /// Status bar
+    /// Cleaned memory info
 
     public partial class MainWindow : Window
     {
@@ -72,6 +74,30 @@ namespace WpfApp1
         }
 
         //ACTIONS
+
+        private void clean_downloads(List<string> item)
+        {
+            foreach (var file in Directory.GetFiles($"C:\\Users\\{user_name}\\Downloads"))
+            {
+                foreach (var im in item)
+                {
+                    if (file.EndsWith(im))
+                    {
+                        try 
+                        {
+                            File.Delete(file);
+                            add_log($"[OK] File {file} deleted");
+                        }
+                        catch (Exception ex)
+                        {
+                            add_log($"[Error] {ex.Message}");
+
+                        }
+                    }
+                }
+            }
+            add_log("[OK] Done");
+        }
 
         private void clean_custom_folder(string dir)
         {
@@ -167,6 +193,12 @@ namespace WpfApp1
             {
                 add_log("Recycle bin cleaning\n");
                 Task.Run(() => clean_recycle());
+            }
+
+            if (clear_downloads_images.IsChecked == true)
+            {
+                add_log("Images cleaning\n");
+                Task.Run(() => clean_downloads(images));
             }
         }
     }

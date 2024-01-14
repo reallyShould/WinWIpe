@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="VENIK" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
-    
+
     <Grid Margin="0,0,0,0" Background="#092635">
         <ScrollViewer x:Name="selectScroll" Margin="0,132,650,10" Background="#5C8374">
             <StackPanel>
@@ -38,7 +38,7 @@
                 <Button x:Name="clean" Content="Clean" HorizontalAlignment="Right" Height="25" Width="85" Cursor="Hand" VerticalAlignment="Bottom" Click="btn_clean" Background="#9EC8B9" BorderBrush="#FF9EC8B9"/>
                 <ProgressBar x:Name="statusBar" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0, 90, 0" Background="#FF9EC8B9" Foreground="#FF1B4242" BorderBrush="#FF9EC8B9"></ProgressBar>
             </Grid>
-            
+
         </Grid>
         <Grid Margin="10,10,10,357">
             <Image HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png"/>
