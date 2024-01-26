@@ -1,22 +1,10 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WinForms = System.Windows.Forms;
 
 namespace WpfApp1
@@ -26,13 +14,13 @@ namespace WpfApp1
     /// System info
     /// Win logs
     /// Web chache 
-    /// Downloads
     /// Fix scrollbar
     /// Status bar
     /// Cleaned memory info
 
     public partial class MainWindow : Window
     {
+        //FOR RECYCLE BIN
         enum RecycleFlags : uint
         {
             SHERB_NOCONFIRMATION = 0x00000001,
@@ -42,12 +30,14 @@ namespace WpfApp1
         [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
         static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
 
-
+        //MAIN VARIABLES
+        static public string version = "0.1";
         public string customFolder = null;
         public int counter = 0;
-        public string start_message = "=================\nVENIK by reallyShould\nVersion 0.0.1\n=================\n";
+        public string start_message = $"=================\nVENIK by reallyShould\nVersion {version}\n=================\n";
         public string user_name = Environment.UserName;
 
+        //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
         List<string> audio = new List<string>() { ".mp3", ".wav", ".ogg", ".aac", ".flac", ".alac", ".dsd" };
         List<string> video = new List<string>() { ".mp4", ".mov", ".wmv", ".avi", ".mkv", ".avchd" };
@@ -55,24 +45,26 @@ namespace WpfApp1
         List<string> archives = new List<string>() { ".zip", ".rar", ".tar", ".7z", ".cab", ".arj", ".lzh" };
         List<string> torrents = new List<string>() { ".torrent" };
 
-        Dictionary<string, System.Windows.Controls.CheckBox> checkersDownloads = new Dictionary<string, System.Windows.Controls.CheckBox>();
+        Dictionary<string, CheckBox> checkersDownloads = new Dictionary<string, CheckBox>();
         Dictionary<string, List<string>>  checkersDes = new Dictionary<string, List<string>>();
 
 
         public MainWindow()
         {
             InitializeComponent();
+
+            //INIT
             selectScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            statusBar.Value = 100;
+            statusBar.Value = 100; //
             logs.Text = start_message;
-            this.Title = $"VENIK 0.0.1 [{user_name}]";
+            this.Title = $"VENIK {version} [{user_name}]";
             if(customFolder == null)
             {
                 clear_custom_folder_chk.IsEnabled = false;
             }
 
             //DICTS FOR DOWNLOADS
-            checkersDownloads = new Dictionary<string, System.Windows.Controls.CheckBox>()
+            checkersDownloads = new Dictionary<string, CheckBox>()
             {
                 { "clear_downloads_exe", clear_downloads_exe },
                 { "clear_downloads_music", clear_downloads_music },
@@ -147,7 +139,6 @@ namespace WpfApp1
             }
         }
  
-
         private void clean_recycle()
         {
             uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
@@ -165,7 +156,7 @@ namespace WpfApp1
         {
             if (string.IsNullOrEmpty(message)) 
             { 
-                this.Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
+                Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
             }
             else if (message == "sep")
             {
@@ -173,9 +164,9 @@ namespace WpfApp1
             }
             else 
             { 
-                this.Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
+                Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
             }
-            this.Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
+            Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
         }
 
         //BUTTONS EVENTS
@@ -194,10 +185,12 @@ namespace WpfApp1
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
+            // FIX
             add_log("");
             add_log("Clean start");
             add_log("sep");
 
+            // FIX
             if (clear_custom_folder_chk.IsChecked == true)
             {
                 add_log("Custom folder cleaning\n");
@@ -217,13 +210,13 @@ namespace WpfApp1
             //CLEAN DOWNLOADS
             foreach (FrameworkElement checkBox in stackPanel.Children)
             {
-                if (checkBox is System.Windows.Controls.CheckBox || checkersDownloads.ContainsKey(checkBox.Name))
+                if (checkBox is CheckBox || checkersDownloads.ContainsKey(checkBox.Name))
                 {
                     try
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            this.Dispatcher.Invoke(new Action(() => clean_downloads(checkersDes[checkBox.Name])));
+                            Dispatcher.Invoke(new Action(() => clean_downloads(checkersDes[checkBox.Name])));
                         }
                     }
                     catch { }

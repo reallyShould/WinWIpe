@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="VENIK" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
 
@@ -38,13 +37,11 @@
                 <Button x:Name="clean" Content="Clean" HorizontalAlignment="Right" Height="25" Width="85" Cursor="Hand" VerticalAlignment="Bottom" Click="btn_clean" Background="#9EC8B9" BorderBrush="#FF9EC8B9"/>
                 <ProgressBar x:Name="statusBar" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 0, 90, 0" Background="#FF9EC8B9" Foreground="#FF1B4242" BorderBrush="#FF9EC8B9"></ProgressBar>
             </Grid>
-
         </Grid>
         <Grid Margin="10,10,10,357">
             <Image HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png"/>
             <Label Content="VENIK" Height="50" Width="180" Margin="-310,0,0,30" FontSize="43" FontFamily="Bahnschrift" VerticalContentAlignment="Stretch" Foreground="#9EC8B9"/>
             <Label Content="by reallyShould" Height="25" Width="100" Margin="-390,40,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#5C8374"/>
         </Grid>
-
     </Grid>
 </Window>

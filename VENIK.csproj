@@ -98,8 +98,5 @@
   <ItemGroup>
     <Resource Include="data-cleaning.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="kawasaki-iot.gif" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
