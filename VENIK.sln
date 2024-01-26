@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VENIK", "VENIK.csproj", "{72264A1C-3122-46B3-A433-B86E5BE59EA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libs", "..\libs\libs.csproj", "{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,18 +27,6 @@ Global
 		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Release|x64.Build.0 = Release|Any CPU
 		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Release|x86.ActiveCfg = Release|Any CPU
 		{72264A1C-3122-46B3-A433-B86E5BE59EA4}.Release|x86.Build.0 = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|x64.Build.0 = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Debug|x86.Build.0 = Debug|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|x64.ActiveCfg = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|x64.Build.0 = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|x86.ActiveCfg = Release|Any CPU
-		{9469B1BE-4DDE-4975-963C-6B3D2F88F9FA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

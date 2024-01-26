@@ -9,7 +9,7 @@
 
     <Grid Margin="0,0,0,0" Background="#092635">
         <ScrollViewer x:Name="selectScroll" Margin="0,132,650,10" Background="#5C8374">
-            <StackPanel>
+            <StackPanel x:Name="stackPanel">
                 <Label Content="System" Background="#1B4242" FontSize="9" Foreground="#FF5C8374"/>
                 <CheckBox Width="100" x:Name="clear_tmp_chk" Content="Temporary" FontStyle="Italic" Background="#FF9EC8B9"/>
                 <CheckBox Width="100" x:Name="clear_recycle" Content="Recycle Bin" FontStyle="Italic" Background="#FF9EC8B9"/>

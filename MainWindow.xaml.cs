@@ -21,11 +21,7 @@ using WinForms = System.Windows.Forms;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-    /// https://colorhunt.co/palette/0926351b42425c83749ec8b9
+    /// Palette - https://colorhunt.co/palette/0926351b42425c83749ec8b9
     /// TODO
     /// System info
     /// Win logs
@@ -59,6 +55,9 @@ namespace WpfApp1
         List<string> archives = new List<string>() { ".zip", ".rar", ".tar", ".7z", ".cab", ".arj", ".lzh" };
         List<string> torrents = new List<string>() { ".torrent" };
 
+        Dictionary<string, System.Windows.Controls.CheckBox> checkersDownloads = new Dictionary<string, System.Windows.Controls.CheckBox>();
+        Dictionary<string, List<string>>  checkersDes = new Dictionary<string, List<string>>();
+
 
         public MainWindow()
         {
@@ -71,9 +70,30 @@ namespace WpfApp1
             {
                 clear_custom_folder_chk.IsEnabled = false;
             }
+
+            //DICTS FOR DOWNLOADS
+            checkersDownloads = new Dictionary<string, System.Windows.Controls.CheckBox>()
+            {
+                { "clear_downloads_exe", clear_downloads_exe },
+                { "clear_downloads_music", clear_downloads_music },
+                { "clear_downloads_video", clear_downloads_video },
+                { "clear_downloads_images", clear_downloads_images },
+                { "clear_downloads_torrents", clear_downloads_torrents },
+                { "clear_downloads_archive", clear_downloads_archive }
+            };
+            checkersDes = new Dictionary<string, List<string>>()
+            {
+                { "clear_downloads_exe", apps },
+                { "clear_downloads_music", audio },
+                { "clear_downloads_video", video },
+                { "clear_downloads_images", images },
+                { "clear_downloads_torrents", torrents },
+                { "clear_downloads_archive", archives }
+            };
         }
 
         //ACTIONS
+        // Try add to other script
 
         private void clean_downloads(List<string> item)
         {
@@ -91,7 +111,6 @@ namespace WpfApp1
                         catch (Exception ex)
                         {
                             add_log($"[Error] {ex.Message}");
-
                         }
                     }
                 }
@@ -142,7 +161,6 @@ namespace WpfApp1
             }
         }
 
-        //BUTTONS EVENTS
         private void add_log(string message)
         {
             if (string.IsNullOrEmpty(message)) 
@@ -160,6 +178,7 @@ namespace WpfApp1
             this.Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
         }
 
+        //BUTTONS EVENTS
         private void btn_change_custom_folder(object sender, RoutedEventArgs e)
         {
             WinForms.FolderBrowserDialog dialog = new WinForms.FolderBrowserDialog();
@@ -178,7 +197,7 @@ namespace WpfApp1
             add_log("");
             add_log("Clean start");
             add_log("sep");
-            //action
+
             if (clear_custom_folder_chk.IsChecked == true)
             {
                 add_log("Custom folder cleaning\n");
@@ -195,10 +214,20 @@ namespace WpfApp1
                 Task.Run(() => clean_recycle());
             }
 
-            if (clear_downloads_images.IsChecked == true)
+            //CLEAN DOWNLOADS
+            foreach (FrameworkElement checkBox in stackPanel.Children)
             {
-                add_log("Images cleaning\n");
-                Task.Run(() => clean_downloads(images));
+                if (checkBox is System.Windows.Controls.CheckBox || checkersDownloads.ContainsKey(checkBox.Name))
+                {
+                    try
+                    {
+                        if (checkersDownloads[checkBox.Name].IsChecked == true)
+                        {
+                            this.Dispatcher.Invoke(new Action(() => clean_downloads(checkersDes[checkBox.Name])));
+                        }
+                    }
+                    catch { }
+                }
             }
         }
     }
