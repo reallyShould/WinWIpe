@@ -17,7 +17,7 @@ namespace WpfApp1
     /// Web chache 
     /// Fix scrollbar
     /// Status bar
-    /// Cleaned memory info <summary>
+    /// Cleaned memory info
     /// TRY CATCH
 
 
@@ -167,6 +167,7 @@ namespace WpfApp1
 
         private void clean_tmp()
         {
+            add_log($"\t\tCleaning temporary files");
             try
             {
                 Task.Run(() => clean_custom_folder($"C:\\Windows\\Temp"));
@@ -176,6 +177,7 @@ namespace WpfApp1
 
         private void clean_folder()
         {
+            add_log($"\t\tCleaning custom folder");
             try
             {
                 Task.Run(() => clean_custom_folder(customFolder));
@@ -185,6 +187,7 @@ namespace WpfApp1
 
         private void old_updates()
         {
+            add_log($"\t\tCleaning old updates");
             try
             {
                 Process proc = Process.Start(new ProcessStartInfo
@@ -194,14 +197,14 @@ namespace WpfApp1
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });
-
-
+                add_log($"[OK] Done");
             }
             catch (Exception err) { add_log($"[Error] {err}"); }
         }
 
         private void clean_downloads(List<string> item)
         {
+            add_log($"\t\tCleaning downloads ");
             foreach (var file in Directory.GetFiles($"C:\\Users\\{user_name}\\Downloads"))
             {
                 foreach (var im in item)

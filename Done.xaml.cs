@@ -23,5 +23,10 @@ namespace VENIK
         {
             InitializeComponent();
         }
+
+        private void OK_btn_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }
