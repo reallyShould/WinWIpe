@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using VENIK;
 using WinForms = System.Windows.Forms;
 
 namespace WpfApp1
@@ -12,11 +14,12 @@ namespace WpfApp1
     /// Palette - https://colorhunt.co/palette/0926351b42425c83749ec8b9
     /// TODO
     /// System info
-    /// Win logs
     /// Web chache 
     /// Fix scrollbar
     /// Status bar
-    /// Cleaned memory info
+    /// Cleaned memory info <summary>
+    /// TRY CATCH
+
 
     public partial class MainWindow : Window
     {
@@ -45,8 +48,10 @@ namespace WpfApp1
         List<string> archives = new List<string>() { ".zip", ".rar", ".tar", ".7z", ".cab", ".arj", ".lzh" };
         List<string> torrents = new List<string>() { ".torrent" };
 
+        Dictionary<string, CheckBox> checkers = new Dictionary<string, CheckBox>();
+        Dictionary<string, Delegate> checkersDes = new Dictionary<string, Delegate>();
         Dictionary<string, CheckBox> checkersDownloads = new Dictionary<string, CheckBox>();
-        Dictionary<string, List<string>>  checkersDes = new Dictionary<string, List<string>>();
+        Dictionary<string, List<string>>  checkersDownloadsDes = new Dictionary<string, List<string>>();
 
 
         public MainWindow()
@@ -63,6 +68,23 @@ namespace WpfApp1
                 clear_custom_folder_chk.IsEnabled = false;
             }
 
+            //DICTS FOR MAIN
+            checkers = new Dictionary<string, CheckBox>()
+            {
+                { "clear_tmp_chk", clear_tmp_chk },
+                { "clear_recycle", clear_recycle },
+                { "clear_old_updates", clear_old_updates },
+                { "clear_custom_folder_chk", clear_custom_folder_chk }
+            };
+
+            checkersDes = new Dictionary<string, Delegate>()
+            {
+                { "clear_tmp_chk", new Action(clean_tmp) },
+                { "clear_recycle", new Action(clean_recycle) },
+                { "clear_old_updates", new Action(old_updates) },
+                { "clear_custom_folder_chk", new Action(clean_folder) }
+            };
+
             //DICTS FOR DOWNLOADS
             checkersDownloads = new Dictionary<string, CheckBox>()
             {
@@ -73,7 +95,8 @@ namespace WpfApp1
                 { "clear_downloads_torrents", clear_downloads_torrents },
                 { "clear_downloads_archive", clear_downloads_archive }
             };
-            checkersDes = new Dictionary<string, List<string>>()
+
+            checkersDownloadsDes = new Dictionary<string, List<string>>()
             {
                 { "clear_downloads_exe", apps },
                 { "clear_downloads_music", audio },
@@ -84,8 +107,98 @@ namespace WpfApp1
             };
         }
 
+        //ADDITIONAL
+
+        private void add_log(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
+            }
+            else if (message == "sep")
+            {
+                add_log("============");
+            }
+            else
+            {
+                Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
+            }
+            Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
+        }
+
+
+        private void clean_custom_folder(string dir)
+        {
+            try
+            {
+                foreach (var file in Directory.GetFiles(dir))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                        add_log($"[OK] File {file} deleted");
+                    }
+                    catch (Exception ex)
+                    {
+                        add_log($"[Error] {ex.Message}");
+                        continue;
+                    }
+                }
+                foreach (var subdir in Directory.GetDirectories(dir))
+                {
+                    clean_custom_folder(subdir);
+                }
+                try
+                {
+                    Directory.Delete(dir);
+                    add_log($"[OK] Dir {dir} deleted");
+                }
+                catch (Exception ex)
+                {
+                    add_log($"[Error] {ex.Message}");
+                }
+            }
+            catch (Exception err) { add_log($"[Error] {err}"); }
+        }
+
+
         //ACTIONS
         // Try add to other script
+
+        private void clean_tmp()
+        {
+            try
+            {
+                Task.Run(() => clean_custom_folder($"C:\\Windows\\Temp"));
+            }
+            catch (Exception err) { add_log($"[Error] {err}"); }
+        }
+
+        private void clean_folder()
+        {
+            try
+            {
+                Task.Run(() => clean_custom_folder(customFolder));
+            }
+            catch (Exception err) { add_log($"[Error] {err}"); }
+        }
+
+        private void old_updates()
+        {
+            try
+            {
+                Process proc = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd",
+                    Arguments = "rd /s /q c:windows.old",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+
+            }
+            catch (Exception err) { add_log($"[Error] {err}"); }
+        }
 
         private void clean_downloads(List<string> item)
         {
@@ -110,64 +223,20 @@ namespace WpfApp1
             add_log("[OK] Done");
         }
 
-        private void clean_custom_folder(string dir)
-        {
-            foreach (var file in Directory.GetFiles(dir))
-            {
-                try
-                {
-                    File.Delete(file);
-                    add_log($"[OK] File {file} deleted");
-                }
-                catch (Exception ex)
-                {
-                    add_log($"[Error] {ex.Message}");
-                    continue;
-                }
-            }
-            foreach (var subdir in Directory.GetDirectories(dir))
-            {
-                clean_custom_folder(subdir);
-            }
-            try { 
-                Directory.Delete(dir);
-                add_log($"[OK] Dir {dir} deleted");
-            }
-            catch (Exception ex) 
-            {
-                add_log($"[Error] {ex.Message}");
-            }
-        }
  
         private void clean_recycle()
         {
             uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
             if (result != 0)
             {
-                add_log("[Error] Recycle bin error");
+                //add_log("[Error] Recycle bin error");
             }
             else
             {
-                add_log("[OK] Recycle bin clean");
+                //add_log("[OK] Recycle bin clean");
             }
         }
 
-        private void add_log(string message)
-        {
-            if (string.IsNullOrEmpty(message)) 
-            { 
-                Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
-            }
-            else if (message == "sep")
-            {
-                add_log("============");
-            }
-            else 
-            { 
-                Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
-            }
-            Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
-        }
 
         //BUTTONS EVENTS
         private void btn_change_custom_folder(object sender, RoutedEventArgs e)
@@ -190,22 +259,23 @@ namespace WpfApp1
             add_log("Clean start");
             add_log("sep");
 
-            // FIX
-            if (clear_custom_folder_chk.IsChecked == true)
+            //MAIN
+            foreach (FrameworkElement checkBox in stackPanel.Children)
             {
-                add_log("Custom folder cleaning\n");
-                Task.Run(() => clean_custom_folder(customFolder));
-            }
-            if (clear_tmp_chk.IsChecked == true)
-            {
-                Task.Run(() => clean_custom_folder($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
+                if (checkBox is CheckBox || checkers.ContainsKey(checkBox.Name))
+                {
+                    try
+                    {
+                        if (checkers[checkBox.Name].IsChecked == true)
+                        {
+                            //Dispatcher.Invoke(new Action(() => clean_downloads(checkersDownloadsDes[checkBox.Name])));
+                            Dispatcher.Invoke(checkersDes[checkBox.Name]);
+                        }
+                    }
+                    catch (Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
+                }
             }
 
-            if (clear_recycle.IsChecked == true)
-            {
-                add_log("Recycle bin cleaning\n");
-                Task.Run(() => clean_recycle());
-            }
 
             //CLEAN DOWNLOADS
             foreach (FrameworkElement checkBox in stackPanel.Children)
@@ -216,12 +286,17 @@ namespace WpfApp1
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            Dispatcher.Invoke(new Action(() => clean_downloads(checkersDes[checkBox.Name])));
+                            Dispatcher.Invoke(new Action(() => clean_downloads(checkersDownloadsDes[checkBox.Name])));
                         }
                     }
-                    catch { }
+                    catch(Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
                 }
             }
+
+            Done doneWindow = new Done();
+            doneWindow.Owner = this;
+            doneWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            doneWindow.Show();
         }
     }
 }

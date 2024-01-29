@@ -12,7 +12,7 @@
                 <Label Content="System" Background="#1B4242" FontSize="9" Foreground="#FF5C8374"/>
                 <CheckBox Width="100" x:Name="clear_tmp_chk" Content="Temporary" FontStyle="Italic" Background="#FF9EC8B9"/>
                 <CheckBox Width="100" x:Name="clear_recycle" Content="Recycle Bin" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="clear_windows_logs" Content="Windows Logs" FontStyle="Italic" Background="#FF9EC8B9"/>
+                <CheckBox Width="100" x:Name="clear_old_updates" Content="Old updates" FontStyle="Italic" Background="#FF9EC8B9"/>
                 <CheckBox Width="100" x:Name="clear_web_cache" Content="Web Cache" FontStyle="Italic" Background="#FF9EC8B9"/>
 
                 <Label Content="Downloads" Background="#1B4242" FontSize="9" Foreground="#FF5C8374"/>

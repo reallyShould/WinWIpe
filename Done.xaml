@@ -1,0 +1,14 @@
+﻿<Window x:Class="VENIK.Done"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VENIK"
+        mc:Ignorable="d"
+        Title="Done" Height="200" Width="350" ResizeMode="NoResize" Icon="/data-cleaning.png">
+    <Grid Background="#092635">
+        <Button x:Name="OK_btn" Content="OK" Cursor="Hand" Margin="0,0,10,10" Background="#9EC8B9" BorderBrush="#FF9EC8B9" RenderTransformOrigin="1,1" HorizontalAlignment="Right" Width="80" Height="30" VerticalAlignment="Bottom"/>
+        <Label Content="The program has finished its work" Margin="10,10,10,0" VerticalAlignment="Top" Height="82" FontSize="18" Foreground="#9EC8B9"/>
+
+    </Grid>
+</Window>
