@@ -121,14 +121,6 @@ namespace WpfApp1
 
         private void add_log(string message)
         {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                if (LogsTextBoxXAML.Text.Length > 10000)
-                {
-                    LogsTextBoxXAML.Clear();
-                }
-            }));
-
             if (string.IsNullOrEmpty(message))
             {
                 Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
@@ -164,7 +156,7 @@ namespace WpfApp1
                 }
                 foreach (var subdir in Directory.GetDirectories(dir))
                 {
-                    clean_custom_folder(subdir);
+                    Dispatcher.Invoke(() => clean_custom_folder(subdir));
                 }
                 try
                 {
