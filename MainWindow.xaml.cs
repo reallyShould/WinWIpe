@@ -70,6 +70,7 @@ namespace WpfApp1
 
             //INIT
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
             this.Title = $"VENIK {version} [{user_name}]";
             if(customFolder == null)
@@ -120,9 +121,17 @@ namespace WpfApp1
 
         private void add_log(string message)
         {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                if (LogsTextBoxXAML.Text.Length > 10000)
+                {
+                    LogsTextBoxXAML.Clear();
+                }
+            }));
+
             if (string.IsNullOrEmpty(message))
             {
-                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Text = string.Empty));
+                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
             }
             else if (message == "sep")
             {
@@ -280,6 +289,11 @@ namespace WpfApp1
 
 
         //BUTTONS EVENTS
+        private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
+        }
+
         private void btn_ChangeCustomFolderButtonXAML(object sender, RoutedEventArgs e)
         {
             WinForms.FolderBrowserDialog dialog = new WinForms.FolderBrowserDialog();
@@ -335,13 +349,17 @@ namespace WpfApp1
                 }
             }
             //////////////////////////////////////////////////////////
-            List<string> installedBrowsers = GetInstalledSoftware();
+            
+            
+            /*List<string> installedBrowsers = GetInstalledSoftware();
 
             Console.WriteLine("Установленные браузеры:");
             foreach (var browser in installedBrowsers)
             {
                 Debug.WriteLine(browser);
-            }
+            }*/
+
+            // окно появляется раньше чем заканчивается прога
 
             Done doneWindow = new Done();
             doneWindow.Owner = this;
