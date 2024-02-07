@@ -6,41 +6,41 @@
         mc:Ignorable="d"
         Title="VENIK" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
 
-    <Grid x:Name="MainGridXAML" Margin="0,0,0,0" Background="#092635" >
-        <ScrollViewer x:Name="SelectScrollXAML" Margin="0,132,650,10" Background="#5C8374">
+    <Grid x:Name="MainGridXAML" Margin="0,0,0,0" Background="#003630" >
+        <ScrollViewer x:Name="SelectScrollXAML" Margin="0,132,0,10" Background="#00877A" HorizontalAlignment="Left" Width="150">
             <StackPanel x:Name="StackPanelXAML">
-                <Label x:Name="SystemLabelXAML" Content="System" Background="#1B4242" FontSize="9" Foreground="#FF5C8374" />
-                <CheckBox Width="100" x:Name="TmpCheckerXAML" Content="Temporary" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="RecycleCheckerXAML" Content="Recycle Bin" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="UpdatesCheckerXAML" Content="Old updates" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="WebCacheCheckerXAML" Content="Web Cache" FontStyle="Italic" Background="#FF9EC8B9"/>
+                <Label x:Name="SystemLabelXAML" Content="System" Background="#005E55" FontSize="9" Foreground="#00B09E" />
+                <CheckBox Width="100" x:Name="TmpCheckerXAML" Content="Temporary" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="RecycleCheckerXAML" Content="Recycle Bin" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="UpdatesCheckerXAML" Content="Old updates" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="WebCacheCheckerXAML" Content="Web Cache" FontStyle="Italic" Background="#00B09E"/>
 
-                <Label x:Name="DownloadsLabelXAML" Content="Downloads" Background="#1B4242" FontSize="9" Foreground="#FF5C8374"/>
-                <CheckBox Width="100" x:Name="ExeCheckerXAML" Content="Apps" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="AudioCheckerXAML" Content="Music" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="VideoCheckerXAML" Content="Video" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="ImagesCheckerXAML" Content="Images" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="TorrentsCheckerXAML" Content="Torrents" FontStyle="Italic" Background="#FF9EC8B9"/>
-                <CheckBox Width="100" x:Name="ArchiveCheckerXAML" Content="Archives" FontStyle="Italic" Background="#FF9EC8B9"/>
+                <Label x:Name="DownloadsLabelXAML" Content="Downloads" Background="#005E55" FontSize="9" Foreground="#00B09E"/>
+                <CheckBox Width="100" x:Name="ExeCheckerXAML" Content="Apps" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="AudioCheckerXAML" Content="Music" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="VideoCheckerXAML" Content="Video" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="ImagesCheckerXAML" Content="Images" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="TorrentsCheckerXAML" Content="Torrents" FontStyle="Italic" Background="#00B09E"/>
+                <CheckBox Width="100" x:Name="ArchiveCheckerXAML" Content="Archives" FontStyle="Italic" Background="#00B09E"/>
 
-                <Label x:Name="OtherLabelXAML" Content="Other" Background="#1B4242" FontSize="9" Foreground="#FF5C8374"/>
-                <CheckBox x:Name="CustomFolderCheckerXAML" Width="100" Content="Custom folder" FontStyle="Italic" Background="#FF9EC8B9" IsChecked="False"/>
-                <Button x:Name="ChangeCustomFolderButtonXAML" Content="Change" HorizontalAlignment="Center" Height="15" FontSize="9" Background="#9EC8B9" Click="btn_ChangeCustomFolderButtonXAML" BorderBrush="#FF9EC8B9"/>
+                <Label x:Name="OtherLabelXAML" Content="Other" Background="#005E55" FontSize="9" Foreground="#00B09E"/>
+                <CheckBox x:Name="CustomFolderCheckerXAML" Width="100" Content="Custom folder" FontStyle="Italic" Background="#00B09E" IsChecked="False"/>
+                <Button x:Name="ChangeCustomFolderButtonXAML" Content="Change" HorizontalAlignment="Center" Height="15" FontSize="9" Background="#00B09E" Click="btn_ChangeCustomFolderButtonXAML" BorderBrush="#00B09E"/>
             </StackPanel>
         </ScrollViewer>
 
         <Grid Margin="155,132,10,10">
-            <ScrollViewer x:Name="LogScrollXAML" Height="275" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <TextBox x:Name="LogsTextBoxXAML" Text="Logs" TextWrapping="Wrap" Background="#5C8374" IsReadOnly="True" BorderBrush="#FF5C8374"/>
+            <ScrollViewer x:Name="LogScrollXAML" Margin="0,0,0,34">
+                <TextBox x:Name="LogsTextBoxXAML" Text="Logs" TextWrapping="Wrap" Background="#005E55" IsReadOnly="True" BorderBrush="#005E55"/>
             </ScrollViewer>
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="25">
-                <Button x:Name="CleanButtonXAML" Content="Clean" HorizontalAlignment="Right" Height="25" Width="85" Cursor="Hand" VerticalAlignment="Bottom" Click="btn_clean" Background="#9EC8B9" BorderBrush="#FF9EC8B9"/>
-            </Grid>
+
+            <Button x:Name="CleanButtonXAML" Content="Clean" Cursor="Hand" Click="btn_clean" Background="#00B09E" BorderBrush="#00B09E" HorizontalAlignment="Right" Width="99" Height="25" VerticalAlignment="Bottom"/>
+
         </Grid>
-        <Grid Margin="10,10,10,357">
-            <Image x:Name="LogoImageXAML" HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png"/>
-            <Label x:Name="TitleLabelXAML" Content="VENIK" Height="50" Width="180" Margin="-310,0,0,30" FontSize="43" FontFamily="Bahnschrift" VerticalContentAlignment="Stretch" Foreground="#9EC8B9"/>
-            <Label x:Name="DescriptionLabelXAML" Content="by reallyShould" Height="25" Width="100" Margin="-390,40,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#5C8374"/>
+        <Grid Margin="10,10,10,0" Height="117" VerticalAlignment="Top">
+            <Image x:Name="LogoImageXAML" HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png" VerticalAlignment="Top"/>
+            <Label x:Name="TitleLabelXAML" Content="VENIK" Width="180" Margin="145,0,0,0" FontSize="43" FontFamily="Corbel" VerticalContentAlignment="Stretch" Foreground="#00D4BF" Height="59" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="DescriptionLabelXAML" Content="by reallyShould" Height="25" Width="100" Margin="145,50,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#00B09E" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </Grid>
     </Grid>
 </Window>

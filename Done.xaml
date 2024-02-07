@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:VENIK"
         mc:Ignorable="d"
         Title="Done" Height="200" Width="350" ResizeMode="NoResize" Icon="/data-cleaning.png">
-    <Grid Background="#092635">
-        <Button x:Name="OK_btn" Content="OK" Cursor="Hand" Margin="0,0,10,10" Background="#9EC8B9" BorderBrush="#FF9EC8B9" RenderTransformOrigin="1,1" HorizontalAlignment="Right" Width="80" Height="30" VerticalAlignment="Bottom" Click="OK_btn_Click"/>
-        <Label Content="The program has finished its work" Margin="10,10,10,0" VerticalAlignment="Top" Height="82" FontSize="18" Foreground="#9EC8B9" FontWeight="Bold"/>
+    <Grid Background="#003630">
+        <Button x:Name="OK_btn" Content="OK" Cursor="Hand" Margin="0,0,10,10" Background="#00B09E" BorderBrush="#00B09E" RenderTransformOrigin="1,1" HorizontalAlignment="Right" Width="80" Height="30" VerticalAlignment="Bottom" Click="OK_btn_Click"/>
+        <Label Content="The program has finished its work" Margin="10,10,10,0" VerticalAlignment="Top" Height="82" FontSize="18" Foreground="#00D4BF" FontWeight="Bold"/>
 
     </Grid>
 </Window>
