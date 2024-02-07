@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using VENIK;
 using WinForms = System.Windows.Forms;
 
@@ -18,7 +20,6 @@ namespace WpfApp1
     /// Fix scrollbar
     /// Status bar
     /// Cleaned memory info
-    /// TRY CATCH
 
 
     public partial class MainWindow : Window
@@ -38,7 +39,16 @@ namespace WpfApp1
         public string customFolder = null;
         public int counter = 0;
         public string start_message = $"=================\nVENIK by reallyShould\nVersion {version}\n=================\n";
-        public string user_name = Environment.UserName;
+        static public string user_name = Environment.UserName;
+
+        List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
+        Dictionary<string, string> browserChache = new Dictionary<string, string>()
+        {
+            { "chrome.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
+            { "firefox.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Mozilla\\Firefox\\Profiles\\zxcvb5678.default\\cache2\\entries" },///////////
+            { "opera.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
+            { "yandex.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
+        };
 
         //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
@@ -59,51 +69,50 @@ namespace WpfApp1
             InitializeComponent();
 
             //INIT
-            selectScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            statusBar.Value = 100; //
-            logs.Text = start_message;
+            SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            LogsTextBoxXAML.Text = start_message;
             this.Title = $"VENIK {version} [{user_name}]";
             if(customFolder == null)
             {
-                clear_custom_folder_chk.IsEnabled = false;
+                CustomFolderCheckerXAML.IsEnabled = false;
             }
 
             //DICTS FOR MAIN
             checkers = new Dictionary<string, CheckBox>()
             {
-                { "clear_tmp_chk", clear_tmp_chk },
-                { "clear_recycle", clear_recycle },
-                { "clear_old_updates", clear_old_updates },
-                { "clear_custom_folder_chk", clear_custom_folder_chk }
+                { "TmpCheckerXAML", TmpCheckerXAML },
+                { "RecycleCheckerXAML", RecycleCheckerXAML },
+                { "UpdatesCheckerXAML", UpdatesCheckerXAML },
+                { "CustomFolderCheckerXAML", CustomFolderCheckerXAML }
             };
 
             checkersDes = new Dictionary<string, Delegate>()
             {
-                { "clear_tmp_chk", new Action(clean_tmp) },
-                { "clear_recycle", new Action(clean_recycle) },
-                { "clear_old_updates", new Action(old_updates) },
-                { "clear_custom_folder_chk", new Action(clean_folder) }
+                { "TmpCheckerXAML", new Action(clean_tmp) },
+                { "RecycleCheckerXAML", new Action(clean_recycle) },
+                { "UpdatesCheckerXAML", new Action(old_updates) },
+                { "CustomFolderCheckerXAML", new Action(clean_folder) }
             };
 
             //DICTS FOR DOWNLOADS
             checkersDownloads = new Dictionary<string, CheckBox>()
             {
-                { "clear_downloads_exe", clear_downloads_exe },
-                { "clear_downloads_music", clear_downloads_music },
-                { "clear_downloads_video", clear_downloads_video },
-                { "clear_downloads_images", clear_downloads_images },
-                { "clear_downloads_torrents", clear_downloads_torrents },
-                { "clear_downloads_archive", clear_downloads_archive }
+                { "ExeCheckerXAML", ExeCheckerXAML },
+                { "AudioCheckerXAML", AudioCheckerXAML },
+                { "VideoCheckerXAML", VideoCheckerXAML },
+                { "ImagesCheckerXAML", ImagesCheckerXAML },
+                { "TorrentsCheckerXAML", TorrentsCheckerXAML },
+                { "ArchiveCheckerXAML", ArchiveCheckerXAML }
             };
 
             checkersDownloadsDes = new Dictionary<string, List<string>>()
             {
-                { "clear_downloads_exe", apps },
-                { "clear_downloads_music", audio },
-                { "clear_downloads_video", video },
-                { "clear_downloads_images", images },
-                { "clear_downloads_torrents", torrents },
-                { "clear_downloads_archive", archives }
+                { "ExeCheckerXAML", apps },
+                { "AudioCheckerXAML", audio },
+                { "VideoCheckerXAML", video },
+                { "ImagesCheckerXAML", images },
+                { "TorrentsCheckerXAML", torrents },
+                { "ArchiveCheckerXAML", archives }
             };
         }
 
@@ -113,7 +122,7 @@ namespace WpfApp1
         {
             if (string.IsNullOrEmpty(message))
             {
-                Dispatcher.Invoke(new Action(() => logs.Text = string.Empty));
+                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Text = string.Empty));
             }
             else if (message == "sep")
             {
@@ -121,9 +130,9 @@ namespace WpfApp1
             }
             else
             {
-                Dispatcher.Invoke(new Action(() => logs.AppendText($"{message}\n")));
+                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.AppendText($"{message}\n")));
             }
-            Dispatcher.Invoke(new Action(() => logScroll.ScrollToEnd()));
+            Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
         }
 
 
@@ -159,6 +168,35 @@ namespace WpfApp1
                 }
             }
             catch (Exception err) { add_log($"[Error] {err}"); }
+        }
+
+        static List<string> GetInstalledSoftware()
+        {
+            List<string> browsers = new List<string>();
+            string registryPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(registryPath))
+            {
+                if (key != null)
+                {
+                    string[] subKeyNames = key.GetSubKeyNames();
+
+                    foreach (var subKeyName in subKeyNames)
+                    {
+                        try
+                        {
+                            string browserPath = key.OpenSubKey(subKeyName)?.GetValue("")?.ToString();
+                            if (browserPath != null)
+                                browsers.Add($"{subKeyName}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Ошибка при получении информации о браузере {subKeyName}: {ex.Message}"); //
+                        }
+                    }
+                }
+            }
+            return browsers;
         }
 
 
@@ -242,28 +280,30 @@ namespace WpfApp1
 
 
         //BUTTONS EVENTS
-        private void btn_change_custom_folder(object sender, RoutedEventArgs e)
+        private void btn_ChangeCustomFolderButtonXAML(object sender, RoutedEventArgs e)
         {
             WinForms.FolderBrowserDialog dialog = new WinForms.FolderBrowserDialog();
             dialog.ShowDialog();
             if (dialog.SelectedPath != "")
             {
                 customFolder = dialog.SelectedPath;
-                clear_custom_folder_chk.IsEnabled = true;
-                clear_custom_folder_chk.IsChecked = true;
+                CustomFolderCheckerXAML.IsEnabled = true;
+                CustomFolderCheckerXAML.IsChecked = true;
                 add_log("Custom folder is " + customFolder);
             }
         }
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
+            CleanButtonXAML.IsEnabled = false;
+
             // FIX
             add_log("");
             add_log("Clean start");
             add_log("sep");
 
             //MAIN
-            foreach (FrameworkElement checkBox in stackPanel.Children)
+            foreach (FrameworkElement checkBox in StackPanelXAML.Children)
             {
                 if (checkBox is CheckBox || checkers.ContainsKey(checkBox.Name))
                 {
@@ -271,7 +311,6 @@ namespace WpfApp1
                     {
                         if (checkers[checkBox.Name].IsChecked == true)
                         {
-                            //Dispatcher.Invoke(new Action(() => clean_downloads(checkersDownloadsDes[checkBox.Name])));
                             Dispatcher.Invoke(checkersDes[checkBox.Name]);
                         }
                     }
@@ -281,7 +320,7 @@ namespace WpfApp1
 
 
             //CLEAN DOWNLOADS
-            foreach (FrameworkElement checkBox in stackPanel.Children)
+            foreach (FrameworkElement checkBox in StackPanelXAML.Children)
             {
                 if (checkBox is CheckBox || checkersDownloads.ContainsKey(checkBox.Name))
                 {
@@ -295,11 +334,20 @@ namespace WpfApp1
                     catch(Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
                 }
             }
+            //////////////////////////////////////////////////////////
+            List<string> installedBrowsers = GetInstalledSoftware();
+
+            Console.WriteLine("Установленные браузеры:");
+            foreach (var browser in installedBrowsers)
+            {
+                Debug.WriteLine(browser);
+            }
 
             Done doneWindow = new Done();
             doneWindow.Owner = this;
             doneWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             doneWindow.Show();
+            CleanButtonXAML.IsEnabled = true;
         }
     }
 }
