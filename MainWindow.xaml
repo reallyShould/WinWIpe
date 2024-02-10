@@ -36,14 +36,15 @@
 
             <Button x:Name="CleanButtonXAML" Content="Clean" Cursor="Hand" Click="btn_clean" Background="#00B09E" BorderBrush="#00B09E" HorizontalAlignment="Right" Width="99" Height="25" VerticalAlignment="Bottom" FontFamily="Corbel" FontWeight="Bold" FontSize="16"/>
             <Label x:Name="FinalLabelXAML" Content="Final: NONE" Height="26" VerticalAlignment="Bottom" Foreground="#00B09E" Margin="0,0,158,0"/>
-            <Button x:Name="CleanLogsButtonXAML" Margin="0,0,104,0" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="25" Background="#00B09E" BorderBrush="#00B09E" Click="CleanLogsButtonXAML_Click"/>
+            <Button x:Name="CleanLogsButtonXAML" Content="⟳" Margin="0,0,104,0" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="25" Background="#00B09E" BorderBrush="#00B09E" Click="CleanLogsButtonXAML_Click" FontSize="16" FontWeight="Bold"/>
 
         </Grid>
         <Grid Margin="10,10,10,0" Height="117" VerticalAlignment="Top">
             <Image x:Name="LogoImageXAML" HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png" VerticalAlignment="Top"/>
             <Label x:Name="TitleLabelXAML" Content="VENIK" Width="180" Margin="145,0,0,0" FontSize="43" FontFamily="Corbel" VerticalContentAlignment="Stretch" Foreground="#00D4BF" Height="59" VerticalAlignment="Top" HorizontalAlignment="Left" FontWeight="Bold"/>
             <Label x:Name="DescriptionLabelXAML" Content="by reallyShould" Width="100" Margin="145,50,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#00B09E" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top"/>
-            <Button x:Name="InfoButtonXAML" Content="Info" HorizontalAlignment="Right" VerticalAlignment="Top" Width="57" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E"/>
+            <Button x:Name="InfoButtonXAML" Content="System info" HorizontalAlignment="Right" VerticalAlignment="Top" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14"/>
+            <Button x:Name="LogsButtonXAML" Content="Open logs" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14" Click="LogsButtonXAML_Click"/>
         </Grid>
     </Grid>
 </Window>

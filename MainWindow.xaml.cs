@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,8 +16,7 @@ namespace WpfApp1
     /// TODO
     /// System info
     /// Web chache 
-    /// Fix scrollbar
-    /// Status bar
+    /// Status bar ???
     /// Cleaned memory info
 
 
@@ -33,11 +33,15 @@ namespace WpfApp1
         static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
 
         //MAIN VARIABLES
-        static public string version = "0.1";
+        static public string version = "0.2";
+        static public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK";
+        static public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK\\clean.log";
+        StringBuilder log = new StringBuilder();
         public string customFolder = null;
         public int counter = 0;
         public string start_message = $"=================\nVENIK by reallyShould\nVersion {version}\n=================\n";
         static public string user_name = Environment.UserName;
+        public bool admin = false;
 
         List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
         Dictionary<string, string> browserChache = new Dictionary<string, string>()
@@ -66,6 +70,30 @@ namespace WpfApp1
         {
             InitializeComponent();
 
+            try
+            {
+                Directory.CreateDirectory("C:\\Windows\\FolderForTest");
+                Directory.Delete("C:\\Windows\\FolderForTest");
+                admin = true;
+            }
+            catch 
+            {
+                admin = false;
+            }
+
+            Dispatcher.Invoke(new Action(() =>
+            {
+                if (!Directory.Exists(defaultLogDir))
+                {
+                    Directory.CreateDirectory(defaultLogDir);
+                }
+
+                if (!File.Exists(defaultLogFile))
+                {
+                    File.Create(defaultLogFile);
+                }
+            }));
+
             //INIT
             List<string> installedSoftware = GetInstalledSoftware();
             Debug.WriteLine("\tSOFT:");
@@ -78,7 +106,7 @@ namespace WpfApp1
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
 
-            this.Title = $"VENIK {version} [{user_name}]";
+            this.Title = $"VENIK {version} [{user_name}] Admin: {admin}";
 
             if(customFolder == null)
             {
@@ -146,7 +174,11 @@ namespace WpfApp1
             }
             else
             {
-                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.AppendText($"{message}\n")));
+                Dispatcher.Invoke(new Action(() => 
+                { 
+                    LogsTextBoxXAML.AppendText($"{message}\n");
+                    log.Append($"({DateTime.Now}) {message}\n");
+                }));
             }
             Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
         }
@@ -205,10 +237,7 @@ namespace WpfApp1
                             if (browserPath != null)
                                 browsers.Add($"{subKeyName}");
                         }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Ошибка при получении информации о браузере {subKeyName}: {ex.Message}"); //
-                        }
+                        catch { }
                     }
                 }
             }
@@ -302,6 +331,26 @@ namespace WpfApp1
 
 
         //BUTTONS EVENTS
+
+        // add new window for view
+        private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
+        {
+            Task.Run(new Action(() =>
+            {
+                try
+                {
+                    StreamWriter sw = new StreamWriter(defaultLogFile);
+                    sw.WriteLine(log.ToString());
+                    sw.Close();
+                    log.Clear();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Write error: " + ex.Message);
+                }
+            }));
+        }
+
         private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
@@ -322,9 +371,7 @@ namespace WpfApp1
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
-            CleanButtonXAML.IsEnabled = false;
-
-            // FIX
+            // FIX IT PLS
             add_log("");
             add_log("Clean start");
             add_log("sep");
