@@ -7,8 +7,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using VENIK;
 using WinForms = System.Windows.Forms;
 
 namespace WpfApp1
@@ -69,10 +67,19 @@ namespace WpfApp1
             InitializeComponent();
 
             //INIT
+            List<string> installedSoftware = GetInstalledSoftware();
+            Debug.WriteLine("\tSOFT:");
+            foreach (var soft in installedSoftware)
+            {
+                Debug.WriteLine(soft);
+            }
+
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
+
             this.Title = $"VENIK {version} [{user_name}]";
+
             if(customFolder == null)
             {
                 CustomFolderCheckerXAML.IsEnabled = false;
@@ -119,8 +126,16 @@ namespace WpfApp1
 
         //ADDITIONAL
 
+        //add logs to clean.log
         private void add_log(string message)
         {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                if (LogsTextBoxXAML.Text.Length > 10000)
+                {
+                    LogsTextBoxXAML.Clear();
+                }
+            }));
             if (string.IsNullOrEmpty(message))
             {
                 Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
@@ -210,6 +225,7 @@ namespace WpfApp1
             try
             {
                 Task.Run(() => clean_custom_folder($"C:\\Windows\\Temp"));
+                Task.Run(() => clean_custom_folder($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
             }
             catch (Exception err) { add_log($"[Error] {err}"); }
         }
@@ -268,15 +284,20 @@ namespace WpfApp1
  
         private void clean_recycle()
         {
-            uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
-            if (result != 0)
+            Task.Run(new Action(() =>
             {
-                //add_log("[Error] Recycle bin error");
-            }
-            else
-            {
-                //add_log("[OK] Recycle bin clean");
-            }
+                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = false));
+                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
+                if (result != 0)
+                {
+                    add_log("[Error] Recycle bin error");
+                }
+                else
+                {
+                    add_log("[OK] Recycle bin clean");
+                }
+                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = true));
+            }));
         }
 
 
@@ -340,24 +361,6 @@ namespace WpfApp1
                     catch(Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
                 }
             }
-            //////////////////////////////////////////////////////////
-            
-            
-            /*List<string> installedBrowsers = GetInstalledSoftware();
-
-            Console.WriteLine("Установленные браузеры:");
-            foreach (var browser in installedBrowsers)
-            {
-                Debug.WriteLine(browser);
-            }*/
-
-            // окно появляется раньше чем заканчивается прога
-
-            Done doneWindow = new Done();
-            doneWindow.Owner = this;
-            doneWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            doneWindow.Show();
-            CleanButtonXAML.IsEnabled = true;
         }
     }
 }
