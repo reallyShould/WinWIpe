@@ -38,6 +38,7 @@ namespace WpfApp1
         static public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK\\clean.log";
         StringBuilder log = new StringBuilder();
         public string customFolder = null;
+        public long fullSize;
         public int counter = 0;
         public string start_message = $"=================\nVENIK by reallyShould\nVersion {version}\n=================\n";
         static public string user_name = Environment.UserName;
@@ -70,6 +71,14 @@ namespace WpfApp1
         {
             InitializeComponent();
 
+            fullSize = 0;
+
+            SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            LogsTextBoxXAML.Text = start_message;
+
+            this.Title = $"VENIK {version} [{user_name}] Admin: {admin}";
+
             try
             {
                 Directory.CreateDirectory("C:\\Windows\\FolderForTest");
@@ -81,18 +90,20 @@ namespace WpfApp1
                 admin = false;
             }
 
+            //CREATE LOG FOLDER
             Dispatcher.Invoke(new Action(() =>
             {
                 if (!Directory.Exists(defaultLogDir))
-                {
                     Directory.CreateDirectory(defaultLogDir);
-                }
 
                 if (!File.Exists(defaultLogFile))
-                {
                     File.Create(defaultLogFile);
-                }
             }));
+
+            if (customFolder == null)
+            {
+                CustomFolderCheckerXAML.IsEnabled = false;
+            }
 
             //INIT
             List<string> installedSoftware = GetInstalledSoftware();
@@ -100,17 +111,6 @@ namespace WpfApp1
             foreach (var soft in installedSoftware)
             {
                 Debug.WriteLine(soft);
-            }
-
-            SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            LogsTextBoxXAML.Text = start_message;
-
-            this.Title = $"VENIK {version} [{user_name}] Admin: {admin}";
-
-            if(customFolder == null)
-            {
-                CustomFolderCheckerXAML.IsEnabled = false;
             }
 
             //DICTS FOR MAIN
@@ -183,6 +183,26 @@ namespace WpfApp1
             Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
         }
 
+        private void AddToFinal(string file)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                FileInfo lng = new FileInfo(file);
+                fullSize += lng.Length;
+                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+            });
+        }
+
+        static String BytesToString(long byteCount) //?????
+        {
+            string[] suf = { "Byt", "KB", "MB", "GB", "TB", "PB", "EB" };
+            if (byteCount == 0)
+                return "0" + suf[0];
+            long bytes = Math.Abs(byteCount);
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(byteCount) * num).ToString() + suf[place];
+        }
 
         private void clean_custom_folder(string dir)
         {
@@ -192,6 +212,7 @@ namespace WpfApp1
                 {
                     try
                     {
+                        AddToFinal(file);
                         File.Delete(file);
                         add_log($"[OK] File {file} deleted");
                     }
@@ -297,6 +318,7 @@ namespace WpfApp1
                     {
                         try 
                         {
+                            AddToFinal(file);
                             File.Delete(file);
                             add_log($"[OK] File {file} deleted");
                         }
