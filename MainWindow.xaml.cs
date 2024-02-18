@@ -351,7 +351,7 @@ namespace VENIK
 
         //BUTTONS EVENTS
 
-        private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)// dont work
+        private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(new Action(() =>
             {
@@ -359,22 +359,26 @@ namespace VENIK
                 {
                     string newLog = $"{defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
                                     $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.log";
-                    File.Create(newLog);
-                    StreamWriter sw = new StreamWriter(newLog);
-                    sw.WriteLine(log.ToString());
-                    sw.Close();
+
+                    using (StreamWriter sw = File.CreateText(newLog))
+                    {
+                        sw.WriteLine(log.ToString());
+                    }
+
                     log.Clear();
+
+                    Log_Viewer log_Viewer = new Log_Viewer();
+                    log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    log_Viewer.Owner = this;
+                    log_Viewer.Show();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Write error: " + ex.Message);
                 }
             }));
-            Log_Viewer log_Viewer = new Log_Viewer();
-            log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            log_Viewer.Owner = this;
-            log_Viewer.Show();
         }
+
 
         private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
@@ -417,7 +421,6 @@ namespace VENIK
                 }
             }
 
-
             //CLEAN DOWNLOADS
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
             {
@@ -430,7 +433,7 @@ namespace VENIK
                             Dispatcher.Invoke(new Action(() => clean_downloads(checkersDownloadsDes[checkBox.Name])));
                         }
                     }
-                    catch(Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
+                    catch (Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
                 }
             }
         }
