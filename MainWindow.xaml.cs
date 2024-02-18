@@ -14,6 +14,7 @@ namespace VENIK
 {
     /// Palette - https://colorhunt.co/palette/0926351b42425c83749ec8b9
     /// TODO
+    /// exception size
     /// System info
     /// Web chache 
     /// Status bar ???
@@ -34,8 +35,8 @@ namespace VENIK
 
         //MAIN VARIABLES
         static public string version = "0.2";
-        static public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK";
-        static public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK\\clean.log";
+        public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK";
+        public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK\\clean.log";
         StringBuilder log = new StringBuilder();
         public string customFolder = null;
         public long fullSize;
@@ -95,9 +96,6 @@ namespace VENIK
             {
                 if (!Directory.Exists(defaultLogDir))
                     Directory.CreateDirectory(defaultLogDir);
-
-                if (!File.Exists(defaultLogFile))
-                    File.Create(defaultLogFile);
             }));
 
             if (customFolder == null)
@@ -154,7 +152,6 @@ namespace VENIK
 
         //ADDITIONAL
 
-        //add logs to clean.log
         private void add_log(string message)
         {
             Dispatcher.Invoke(new Action(() =>
@@ -193,7 +190,7 @@ namespace VENIK
             });
         }
 
-        static String BytesToString(long byteCount) //?????
+        static String BytesToString(long byteCount)
         {
             string[] suf = { "Byt", "KB", "MB", "GB", "TB", "PB", "EB" };
             if (byteCount == 0)
@@ -354,14 +351,16 @@ namespace VENIK
 
         //BUTTONS EVENTS
 
-        // add new window for view
-        private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
+        private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)// dont work
         {
-            Task.Run(new Action(() =>
+            Dispatcher.Invoke(new Action(() =>
             {
                 try
                 {
-                    StreamWriter sw = new StreamWriter(defaultLogFile);
+                    string newLog = $"{defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
+                                    $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.log";
+                    File.Create(newLog);
+                    StreamWriter sw = new StreamWriter(newLog);
                     sw.WriteLine(log.ToString());
                     sw.Close();
                     log.Clear();
@@ -371,6 +370,10 @@ namespace VENIK
                     Debug.WriteLine("Write error: " + ex.Message);
                 }
             }));
+            Log_Viewer log_Viewer = new Log_Viewer();
+            log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            log_Viewer.Owner = this;
+            log_Viewer.Show();
         }
 
         private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
