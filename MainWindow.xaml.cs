@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using WinForms = System.Windows.Forms;
 
-namespace WpfApp1
+namespace VENIK
 {
     /// Palette - https://colorhunt.co/palette/0926351b42425c83749ec8b9
     /// TODO
