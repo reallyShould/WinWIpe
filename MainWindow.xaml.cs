@@ -190,6 +190,16 @@ namespace VENIK
             });
         }
 
+        private void RemoveFromFinal(string file)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                FileInfo lng = new FileInfo(file);
+                fullSize -= lng.Length;
+                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+            });
+        }
+
         static String BytesToString(long byteCount)
         {
             string[] suf = { "Byt", "KB", "MB", "GB", "TB", "PB", "EB" };
@@ -209,12 +219,13 @@ namespace VENIK
                 {
                     try
                     {
-                        File.Delete(file);
                         AddToFinal(file);
+                        File.Delete(file);
                         add_log($"[OK] File {file} deleted");
                     }
                     catch (Exception ex)
                     {
+                        RemoveFromFinal(file);
                         add_log($"[Error] {ex.Message}");
                         continue;
                     }
@@ -315,12 +326,13 @@ namespace VENIK
                     {
                         try 
                         {
-                            File.Delete(file);
                             AddToFinal(file);
+                            File.Delete(file);
                             add_log($"[OK] File {file} deleted");
                         }
                         catch (Exception ex)
                         {
+                            RemoveFromFinal(file);
                             add_log($"[Error] {ex.Message}");
                         }
                     }
