@@ -209,8 +209,8 @@ namespace VENIK
                 {
                     try
                     {
-                        AddToFinal(file);
                         File.Delete(file);
+                        AddToFinal(file);
                         add_log($"[OK] File {file} deleted");
                     }
                     catch (Exception ex)
@@ -315,8 +315,8 @@ namespace VENIK
                     {
                         try 
                         {
-                            AddToFinal(file);
                             File.Delete(file);
+                            AddToFinal(file);
                             add_log($"[OK] File {file} deleted");
                         }
                         catch (Exception ex)
