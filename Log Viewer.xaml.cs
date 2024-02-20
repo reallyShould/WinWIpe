@@ -8,12 +8,12 @@ namespace WinWipe
     {
         string defaultLogDir;
 
-        public Log_Viewer()
+        public Log_Viewer(string defaultLogDir)
         {
             InitializeComponent();
             LogsScrollViewerXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
 
-            defaultLogDir = new MainWindow().defaultLogDir;
+            this.defaultLogDir = defaultLogDir;
 
             UpdateList();
         }
@@ -24,14 +24,14 @@ namespace WinWipe
             if (Directory.GetFiles(defaultLogDir).Length != 0)
             {
                 foreach (var logInfo in Directory.GetFiles(defaultLogDir))
-                {
+            {
                     if (logInfo.EndsWith(".log"))
                     {
                         FileInfo log = new FileInfo(logInfo);
                         LogsListBoxXAML.Items.Add(log.Name);
-                    }
-                }
             }
+        }
+        }
         }
 
         private void LogsListBoxXAML_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -44,10 +44,10 @@ namespace WinWipe
                     StreamReader sr = new StreamReader(fullPath);
                     LogsTextBoxXAML.Text = sr.ReadToEnd();
                     sr.Close();
-                }
+                    }
                 catch { }
             }));
-        }
+                }
 
         private void RefreshLogButtonXAML_Click(object sender, RoutedEventArgs e)
         {
@@ -58,19 +58,19 @@ namespace WinWipe
         {
             string fullPath = $"{defaultLogDir}\\{LogsListBoxXAML.SelectedItem}";
             File.Delete(fullPath);
-            UpdateList();
-        }
+                    UpdateList();
+                }
 
         private void CleanLogButtonXAML_Click(object sender, RoutedEventArgs e)
         {
             if (Directory.GetFiles(defaultLogDir).Length != 0)
             {
                 foreach (var logFile in Directory.GetFiles(defaultLogDir))
-                {
+            {
                     if (logFile.EndsWith(".log"))
-                    {
-                        File.Delete(logFile);
-                    }
+                {
+                    File.Delete(logFile);
+                }
                 }
                 UpdateList();
             }

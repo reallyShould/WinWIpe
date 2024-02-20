@@ -55,6 +55,7 @@ namespace WinWipe
         List<string> images = new List<string>() { ".svg", ".png", ".jpeg", ".jpg", ".gif", ".raw", ".tiff" };
         List<string> archives = new List<string>() { ".zip", ".rar", ".tar", ".7z", ".cab", ".arj", ".lzh" };
         List<string> torrents = new List<string>() { ".torrent" };
+        List<string> word = new List<string>() { ".doc", ".docx" };
 
         Dictionary<string, CheckBox> checkers = new Dictionary<string, CheckBox>();
         Dictionary<string, Delegate> checkersDes = new Dictionary<string, Delegate>();
@@ -73,7 +74,7 @@ namespace WinWipe
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
 
-            this.Title = $"WinWipe {version} [{user_name}] Admin: {admin}";
+            Title = $"WinWipe {version} [{user_name}] Admin: {admin}";
 
             try
             {
@@ -133,7 +134,8 @@ namespace WinWipe
                 { "VideoCheckerXAML", VideoCheckerXAML },
                 { "ImagesCheckerXAML", ImagesCheckerXAML },
                 { "TorrentsCheckerXAML", TorrentsCheckerXAML },
-                { "ArchiveCheckerXAML", ArchiveCheckerXAML }
+                { "ArchiveCheckerXAML", ArchiveCheckerXAML },
+                { "DocumentsCheckerXAML", DocumentsCheckerXAML }
             };
 
             checkersDownloadsDes = new Dictionary<string, List<string>>()
@@ -143,7 +145,8 @@ namespace WinWipe
                 { "VideoCheckerXAML", video },
                 { "ImagesCheckerXAML", images },
                 { "TorrentsCheckerXAML", torrents },
-                { "ArchiveCheckerXAML", archives }
+                { "ArchiveCheckerXAML", archives },
+                { "DocumentsCheckerXAML", word }
             };
         }
 
@@ -218,6 +221,15 @@ namespace WinWipe
             {
                 FileInfo lng = new FileInfo(file);
                 fullSize -= lng.Length;
+                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+            });
+        }
+
+        private void ResetFinal()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                fullSize = 0;
                 FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
             });
         }
@@ -299,23 +311,26 @@ namespace WinWipe
             catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
-        private void CleanTemporary()
+        private async void CleanTemporary()
         {
             AddLog($"\t\tCleaning temporary files");
             try
             {
-                Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
-                Task.Run(() => FullRemove($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
+                await Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
+                await Task.Run(() => FullRemove($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
             }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
+            catch (Exception err)
+            {
+                AddLog($"[Error] {err}");
+            }
         }
 
-        private void CleanRecycleBin()
+        private async void CleanRecycleBin()
         {
-            Task.Run(new Action(() =>
+            try
             {
-                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = false));
-                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
+                CleanButtonXAML.IsEnabled = false;
+                uint result = await Task.Run(() => SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND));
                 if (result != 0)
                 {
                     AddLog("[Error] Recycle bin error");
@@ -324,39 +339,42 @@ namespace WinWipe
                 {
                     AddLog("[OK] Recycle bin clean");
                 }
-                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = true));
-            }));
+            }
+            finally
+            {
+                CleanButtonXAML.IsEnabled = true;
+            }
         }
 
-        private void CleanOldUpdates()
+        private async void CleanOldUpdates()
         {
             AddLog($"\t\tCleaning old updates");
             try
             {
-                Process proc = Process.Start(new ProcessStartInfo
+                Process proc = await Task.Run(() => Process.Start(new ProcessStartInfo
                 {
                     FileName = "cmd",
                     Arguments = "rd /s /q c:windows.old",
                     UseShellExecute = false,
                     CreateNoWindow = true
-                });
+                }));
                 AddLog($"[OK] Done");
             }
             catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
-        private void CleanWebCache()
+        private async void CleanWebCache()
         {
-            foreach(var browser in browserCache.Keys)
+            foreach (var browser in browserCache.Keys)
             {
                 if (installedSoftware.Contains(browser))
                 {
-                    Task.Run(() => FullRemove(browserCache[browser]));
+                    await Task.Run(() => FullRemove(browserCache[browser]));
                     Debug.WriteLine(browser);
                 }
             }
-            
         }
+
 
         private void CleanDownloads(List<string> item)
         {
@@ -413,7 +431,7 @@ namespace WinWipe
 
                     log.Clear();
 
-                    Log_Viewer log_Viewer = new Log_Viewer();
+                    Log_Viewer log_Viewer = new Log_Viewer(defaultLogDir);
                     log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     log_Viewer.Owner = this;
                     log_Viewer.Show();
@@ -446,6 +464,9 @@ namespace WinWipe
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
+            ResetFinal();
+            CleanButtonXAML.IsEnabled = false;
+
             // FIX IT PLS
             // WTF ADAM? FIX IT!!!!!
             AddLog("");
@@ -465,7 +486,7 @@ namespace WinWipe
                         }
                     }
                     catch (Exception err)
-                    { 
+                    {
                         Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}");
                     }
                 }
@@ -483,12 +504,13 @@ namespace WinWipe
                             Dispatcher.Invoke(new Action(() => CleanDownloads(checkersDownloadsDes[checkBox.Name])));
                         }
                     }
-                    catch (Exception err) 
-                    { 
+                    catch (Exception err)
+                    {
                         Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}");
                     }
                 }
             }
+            CleanButtonXAML.IsEnabled = true;
         }
     }
 }
