@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,9 @@ using System.Windows;
 using System.Windows.Controls;
 using WinForms = System.Windows.Forms;
 
-namespace VENIK
+namespace WinWipe
 {
-    /// Palette - https://colorhunt.co/palette/0926351b42425c83749ec8b9
     /// TODO
-    /// exception size
     /// System info
     /// Web chache 
     /// Status bar ???
@@ -34,25 +33,20 @@ namespace VENIK
         static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
 
         //MAIN VARIABLES
-        static public string version = "0.2";
-        public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK";
-        public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\VENIK\\clean.log";
+        static public string version = "1.0";
+        public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\WinWipe";
+        public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\WinWipe\\clean.log";
         StringBuilder log = new StringBuilder();
         public string customFolder = null;
         public long fullSize;
         public int counter = 0;
-        public string start_message = $"=================\nVENIK by reallyShould\nVersion {version}\n=================\n";
+        public string start_message = $"=================\nWinWipe by reallyShould\nVersion {version}\n=================\n";
         static public string user_name = Environment.UserName;
         public bool admin = false;
 
         List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
-        Dictionary<string, string> browserChache = new Dictionary<string, string>()
-        {
-            { "chrome.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
-            { "firefox.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Mozilla\\Firefox\\Profiles\\zxcvb5678.default\\cache2\\entries" },///////////
-            { "opera.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
-            { "yandex.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
-        };
+        Dictionary<string, string> browserCache = new Dictionary<string, string>();
+        List<string> installedSoftware = new List<string>();
 
         //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
@@ -73,12 +67,13 @@ namespace VENIK
             InitializeComponent();
 
             fullSize = 0;
+            installedSoftware = GetInstalledSoftware();
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
 
-            this.Title = $"VENIK {version} [{user_name}] Admin: {admin}";
+            this.Title = $"WinWipe {version} [{user_name}] Admin: {admin}";
 
             try
             {
@@ -103,29 +98,31 @@ namespace VENIK
                 CustomFolderCheckerXAML.IsEnabled = false;
             }
 
-            //INIT
-            List<string> installedSoftware = GetInstalledSoftware();
-            Debug.WriteLine("\tSOFT:");
-            foreach (var soft in installedSoftware)
-            {
-                Debug.WriteLine(soft);
-            }
-
             //DICTS FOR MAIN
             checkers = new Dictionary<string, CheckBox>()
             {
                 { "TmpCheckerXAML", TmpCheckerXAML },
                 { "RecycleCheckerXAML", RecycleCheckerXAML },
                 { "UpdatesCheckerXAML", UpdatesCheckerXAML },
-                { "CustomFolderCheckerXAML", CustomFolderCheckerXAML }
+                { "CustomFolderCheckerXAML", CustomFolderCheckerXAML },
+                { "WebCacheCheckerXAML", WebCacheCheckerXAML }
             };
 
             checkersDes = new Dictionary<string, Delegate>()
             {
-                { "TmpCheckerXAML", new Action(clean_tmp) },
-                { "RecycleCheckerXAML", new Action(clean_recycle) },
-                { "UpdatesCheckerXAML", new Action(old_updates) },
-                { "CustomFolderCheckerXAML", new Action(clean_folder) }
+                { "TmpCheckerXAML", new Action(CleanTemporary) },
+                { "RecycleCheckerXAML", new Action(CleanRecycleBin) },
+                { "UpdatesCheckerXAML", new Action(CleanOldUpdates) },
+                { "CustomFolderCheckerXAML", new Action(CleanCustomFolder) },
+                { "WebCacheCheckerXAML", new Action(CleanWebCache) }
+            };
+
+            browserCache = new Dictionary<string, string>()
+            {
+                { "chrome.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
+                { "firefox.exe", GetFirefoxCache(user_name) },
+                { "opera.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
+                { "yandex.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
             };
 
             //DICTS FOR DOWNLOADS
@@ -150,9 +147,10 @@ namespace VENIK
             };
         }
 
+
         //ADDITIONAL
 
-        private void add_log(string message)
+        private void AddLog(string message)
         {
             Dispatcher.Invoke(new Action(() =>
             {
@@ -167,7 +165,7 @@ namespace VENIK
             }
             else if (message == "sep")
             {
-                add_log("============");
+                AddLog("============");
             }
             else
             {
@@ -180,13 +178,37 @@ namespace VENIK
             Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
         }
 
+        private string GetFirefoxCache(string username)
+        {
+            string path = $"C:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
+            if (Directory.Exists(path))
+            {
+                var tmp = Directory.GetDirectories(path);
+                string output = "NONE";
+                foreach (var dir in tmp)
+                {
+                    var timeOfUsed = Directory.GetLastWriteTime(dir).Date;
+                    DateTime timeNow = DateTime.Now.Date;
+                    if (DateTime.Equals(timeNow, timeOfUsed))
+                    {
+                        output = dir + "\\cache2\\entries";
+                    }
+                }
+                return output;
+            }
+            else
+            {
+                return "NONE";
+            }
+        }
+
         private void AddToFinal(string file)
         {
             Dispatcher.Invoke(() =>
             {
                 FileInfo lng = new FileInfo(file);
                 fullSize += lng.Length;
-                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
             });
         }
 
@@ -209,42 +231,6 @@ namespace VENIK
             int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
             double num = Math.Round(bytes / Math.Pow(1024, place), 1);
             return (Math.Sign(byteCount) * num).ToString() + suf[place];
-        }
-
-        private void clean_custom_folder(string dir)
-        {
-            try
-            {
-                foreach (var file in Directory.GetFiles(dir))
-                {
-                    try
-                    {
-                        AddToFinal(file);
-                        File.Delete(file);
-                        add_log($"[OK] File {file} deleted");
-                    }
-                    catch (Exception ex)
-                    {
-                        RemoveFromFinal(file);
-                        add_log($"[Error] {ex.Message}");
-                        continue;
-                    }
-                }
-                foreach (var subdir in Directory.GetDirectories(dir))
-                {
-                    Dispatcher.Invoke(() => clean_custom_folder(subdir));
-                }
-                try
-                {
-                    Directory.Delete(dir);
-                    add_log($"[OK] Dir {dir} deleted");
-                }
-                catch (Exception ex)
-                {
-                    add_log($"[Error] {ex.Message}");
-                }
-            }
-            catch (Exception err) { add_log($"[Error] {err}"); }
         }
 
         static List<string> GetInstalledSoftware()
@@ -277,30 +263,74 @@ namespace VENIK
         //ACTIONS
         // Try add to other script
 
-        private void clean_tmp()
+        private void FullRemove(string dir)
         {
-            add_log($"\t\tCleaning temporary files");
             try
             {
-                Task.Run(() => clean_custom_folder($"C:\\Windows\\Temp"));
-                Task.Run(() => clean_custom_folder($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
+                foreach (var file in Directory.GetFiles(dir))
+                {
+                    try
+                    {
+                        AddToFinal(file);
+                        File.Delete(file);
+                        AddLog($"[OK] File {file} deleted");
+                    }
+                    catch (Exception ex)
+                    {
+                        RemoveFromFinal(file);
+                        AddLog($"[Error] {ex.Message}");
+                        continue;
+                    }
+                }
+                foreach (var subdir in Directory.GetDirectories(dir))
+                {
+                    Dispatcher.Invoke(() => FullRemove(subdir));
+                }
+                try
+                {
+                    Directory.Delete(dir);
+                    AddLog($"[OK] Dir {dir} deleted");
+                }
+                catch (Exception ex)
+                {
+                    AddLog($"[Error] {ex.Message}");
+                }
             }
-            catch (Exception err) { add_log($"[Error] {err}"); }
+            catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
-        private void clean_folder()
+        private void CleanTemporary()
         {
-            add_log($"\t\tCleaning custom folder");
+            AddLog($"\t\tCleaning temporary files");
             try
             {
-                Task.Run(() => clean_custom_folder(customFolder));
+                Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
+                Task.Run(() => FullRemove($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
             }
-            catch (Exception err) { add_log($"[Error] {err}"); }
+            catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
-        private void old_updates()
+        private void CleanRecycleBin()
         {
-            add_log($"\t\tCleaning old updates");
+            Task.Run(new Action(() =>
+            {
+                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = false));
+                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
+                if (result != 0)
+                {
+                    AddLog("[Error] Recycle bin error");
+                }
+                else
+                {
+                    AddLog("[OK] Recycle bin clean");
+                }
+                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = true));
+            }));
+        }
+
+        private void CleanOldUpdates()
+        {
+            AddLog($"\t\tCleaning old updates");
             try
             {
                 Process proc = Process.Start(new ProcessStartInfo
@@ -310,54 +340,58 @@ namespace VENIK
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });
-                add_log($"[OK] Done");
+                AddLog($"[OK] Done");
             }
-            catch (Exception err) { add_log($"[Error] {err}"); }
+            catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
-        private void clean_downloads(List<string> item)
+        private void CleanWebCache()
         {
-            add_log($"\t\tCleaning downloads ");
+            foreach(var browser in browserCache.Keys)
+            {
+                if (installedSoftware.Contains(browser))
+                {
+                    Task.Run(() => FullRemove(browserCache[browser]));
+                    Debug.WriteLine(browser);
+                }
+            }
+            
+        }
+
+        private void CleanDownloads(List<string> item)
+        {
+            AddLog($"\t\tCleaning downloads ");
             foreach (var file in Directory.GetFiles($"C:\\Users\\{user_name}\\Downloads"))
             {
                 foreach (var im in item)
                 {
                     if (file.EndsWith(im))
                     {
-                        try 
+                        try
                         {
                             AddToFinal(file);
                             File.Delete(file);
-                            add_log($"[OK] File {file} deleted");
+                            AddLog($"[OK] File {file} deleted");
                         }
                         catch (Exception ex)
                         {
                             RemoveFromFinal(file);
-                            add_log($"[Error] {ex.Message}");
+                            AddLog($"[Error] {ex.Message}");
                         }
                     }
                 }
             }
-            add_log("[OK] Done");
+            AddLog("[OK] Done");
         }
 
- 
-        private void clean_recycle()
+        private void CleanCustomFolder()
         {
-            Task.Run(new Action(() =>
+            AddLog($"\t\tCleaning custom folder");
+            try
             {
-                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = false));
-                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
-                if (result != 0)
-                {
-                    add_log("[Error] Recycle bin error");
-                }
-                else
-                {
-                    add_log("[OK] Recycle bin clean");
-                }
-                Dispatcher.Invoke(new Action(() => CleanButtonXAML.IsEnabled = true));
-            }));
+                Task.Run(() => FullRemove(customFolder));
+            }
+            catch (Exception err) { AddLog($"[Error] {err}"); }
         }
 
 
@@ -406,16 +440,17 @@ namespace VENIK
                 customFolder = dialog.SelectedPath;
                 CustomFolderCheckerXAML.IsEnabled = true;
                 CustomFolderCheckerXAML.IsChecked = true;
-                add_log("Custom folder is " + customFolder);
+                AddLog("Custom folder is " + customFolder);
             }
         }
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
             // FIX IT PLS
-            add_log("");
-            add_log("Clean start");
-            add_log("sep");
+            // WTF ADAM? FIX IT!!!!!
+            AddLog("");
+            AddLog("Clean start");
+            AddLog("sep");
 
             //MAIN
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
@@ -429,7 +464,10 @@ namespace VENIK
                             Dispatcher.Invoke(checkersDes[checkBox.Name]);
                         }
                     }
-                    catch (Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
+                    catch (Exception err)
+                    { 
+                        Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}");
+                    }
                 }
             }
 
@@ -442,10 +480,13 @@ namespace VENIK
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            Dispatcher.Invoke(new Action(() => clean_downloads(checkersDownloadsDes[checkBox.Name])));
+                            Dispatcher.Invoke(new Action(() => CleanDownloads(checkersDownloadsDes[checkBox.Name])));
                         }
                     }
-                    catch (Exception err) { Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}"); }
+                    catch (Exception err) 
+                    { 
+                        Debug.WriteLine($"Warning: {err}\ncheckBox: {checkBox.Name}");
+                    }
                 }
             }
         }

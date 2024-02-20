@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace VENIK
+namespace WinWipe
 {
     public partial class Log_Viewer : Window
     {

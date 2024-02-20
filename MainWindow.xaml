@@ -1,10 +1,10 @@
-﻿<Window x:Class="VENIK.MainWindow"
+﻿<Window x:Class="WinWipe.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="VENIK" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
+        Title="WinWipe" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
 
     <Grid x:Name="MainGridXAML" Margin="0,0,0,0" Background="#003630" >
         <ScrollViewer x:Name="SelectScrollXAML" Margin="0,132,0,10" Background="#00877A" HorizontalAlignment="Left" Width="150">
@@ -41,7 +41,7 @@
         </Grid>
         <Grid Margin="10,10,10,0" Height="117" VerticalAlignment="Top">
             <Image x:Name="LogoImageXAML" HorizontalAlignment="Left" Height="100" Width="100"  Source="/data-cleaning.png" VerticalAlignment="Top"/>
-            <Label x:Name="TitleLabelXAML" Content="VENIK" Width="180" Margin="145,0,0,0" FontSize="43" FontFamily="Corbel" VerticalContentAlignment="Stretch" Foreground="#00D4BF" Height="59" VerticalAlignment="Top" HorizontalAlignment="Left" FontWeight="Bold"/>
+            <Label x:Name="TitleLabelXAML" Content="WinWipe" Width="180" Margin="145,0,0,0" FontSize="43" FontFamily="Corbel" VerticalContentAlignment="Stretch" Foreground="#00D4BF" Height="59" VerticalAlignment="Top" HorizontalAlignment="Left" FontWeight="Bold"/>
             <Label x:Name="DescriptionLabelXAML" Content="by reallyShould" Width="100" Margin="145,50,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#00B09E" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top"/>
             <Button x:Name="InfoButtonXAML" Content="System info" HorizontalAlignment="Right" VerticalAlignment="Top" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14"/>
             <Button x:Name="LogsButtonXAML" Content="Open logs" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14" Click="LogsButtonXAML_Click"/>
