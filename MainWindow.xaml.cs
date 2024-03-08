@@ -34,8 +34,8 @@ namespace WinWipe
 
         //MAIN VARIABLES
         static public string version = "1.0";
-        public string defaultLogDir = "C:\\Users\\reallyShould\\AppData\\Roaming\\WinWipe";
-        public string defaultLogFile = "C:\\Users\\reallyShould\\AppData\\Roaming\\WinWipe\\clean.log";
+        public string defaultLogDir = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
+        public string defaultLogFile = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
         StringBuilder log = new StringBuilder();
         public string customFolder = null;
         public long fullSize;
