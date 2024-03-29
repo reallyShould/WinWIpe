@@ -24,6 +24,7 @@ namespace WinWipe
     {
         //Refactor 
         SystemAdd SysAdd = new SystemAdd();
+        Cleaner cleaner = new Cleaner();
 
         //FOR RECYCLE BIN
         enum RecycleFlags : uint
@@ -70,7 +71,7 @@ namespace WinWipe
             InitializeComponent();
 
             fullSize = 0;
-            installedSoftware = GetInstalledSoftware();
+            installedSoftware = SysAdd.GetInstalledSoftware();
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -123,7 +124,7 @@ namespace WinWipe
             browserCache = new Dictionary<string, string>()
             {
                 { "chrome.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
-                { "firefox.exe", GetFirefoxCache(user_name) },
+                { "firefox.exe", cleaner.GetFirefoxCache(user_name) },
                 { "opera.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
                 { "yandex.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
             };
@@ -152,34 +153,7 @@ namespace WinWipe
             };
         }
 
-
         //ADDITIONAL
-
-        
-
-        private string GetFirefoxCache(string username)
-        {
-            string path = $"C:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
-            if (Directory.Exists(path))
-            {
-                var tmp = Directory.GetDirectories(path);
-                string output = "NONE";
-                foreach (var dir in tmp)
-                {
-                    var timeOfUsed = Directory.GetLastWriteTime(dir).Date;
-                    DateTime timeNow = DateTime.Now.Date;
-                    if (DateTime.Equals(timeNow, timeOfUsed))
-                    {
-                        output = dir + "\\cache2\\entries";
-                    }
-                }
-                return output;
-            }
-            else
-            {
-                return "NONE";
-            }
-        }
 
         private void AddToFinal(string file)
         {
@@ -192,7 +166,7 @@ namespace WinWipe
                 }
                 catch { }
                 
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {SysAdd.BytesToString(fullSize)}";
             });
         }
 
@@ -202,7 +176,7 @@ namespace WinWipe
             {
                 FileInfo lng = new FileInfo(file);
                 fullSize -= lng.Length;
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {SysAdd.BytesToString(fullSize)}";
             });
         }
 
@@ -211,47 +185,9 @@ namespace WinWipe
             Dispatcher.Invoke(() =>
             {
                 fullSize = 0;
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {SysAdd.BytesToString(fullSize)}";
             });
         }
-
-        static String BytesToString(long byteCount)
-        {
-            string[] suf = { " B", " KB", " MB", " GB", " TB", " PB", " EB" };
-            if (byteCount == 0)
-                return "0" + suf[0];
-            long bytes = Math.Abs(byteCount);
-            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return (Math.Sign(byteCount) * num).ToString() + suf[place];
-        }
-
-        static List<string> GetInstalledSoftware()
-        {
-            List<string> browsers = new List<string>();
-            string registryPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(registryPath))
-            {
-                if (key != null)
-                {
-                    string[] subKeyNames = key.GetSubKeyNames();
-
-                    foreach (var subKeyName in subKeyNames)
-                    {
-                        try
-                        {
-                            string browserPath = key.OpenSubKey(subKeyName)?.GetValue("")?.ToString();
-                            if (browserPath != null)
-                                browsers.Add($"{subKeyName}");
-                        }
-                        catch { }
-                    }
-                }
-            }
-            return browsers;
-        }
-
 
         //ACTIONS
 
@@ -362,7 +298,6 @@ namespace WinWipe
             }
         }
 
-
         private void CleanDownloads(List<string> item)
         {
             Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning downloads ", LogsTextBoxXAML, LogScrollXAML)));
@@ -399,7 +334,6 @@ namespace WinWipe
             catch (Exception err) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML))); }
         }
 
-
         //BUTTONS EVENTS
 
         private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
@@ -429,7 +363,6 @@ namespace WinWipe
                 }
             }));
         }
-
 
         private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
