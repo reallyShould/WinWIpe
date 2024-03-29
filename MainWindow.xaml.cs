@@ -15,38 +15,21 @@ namespace WinWipe
 {
     /// TODO
     /// System info
-    /// Web chache 
-    /// Status bar ???
-    /// Cleaned memory info
-
 
     public partial class MainWindow : Window
     {
-        //FOR RECYCLE BIN
-        enum RecycleFlags : uint
-        {
-            SHERB_NOCONFIRMATION = 0x00000001,
-            SHERB_NOPROGRESSUI = 0x00000002,
-            SHERB_NOSOUND = 0x00000004
-        }
-        [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
-        static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
+        //Refactor 
+        SystemAdd SysAdd = new SystemAdd();
+        Cleaner cleaner = new Cleaner();
 
         //MAIN VARIABLES
         static public string version = "1.0";
-        public string defaultLogDir = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
-        public string defaultLogFile = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
-        StringBuilder log = new StringBuilder();
         public string customFolder = null;
-        public long fullSize;
         public int counter = 0;
         public string start_message = $"=================\nWinWipe by reallyShould\nVersion {version}\n=================\n";
-        static public string user_name = Environment.UserName;
-        public bool admin = false;
+
 
         List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
-        Dictionary<string, string> browserCache = new Dictionary<string, string>();
-        List<string> installedSoftware = new List<string>();
 
         //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
@@ -58,7 +41,7 @@ namespace WinWipe
         List<string> word = new List<string>() { ".doc", ".docx" };
 
         Dictionary<string, CheckBox> checkers = new Dictionary<string, CheckBox>();
-        Dictionary<string, Delegate> checkersDes = new Dictionary<string, Delegate>();
+        Dictionary<string, Action> checkersDes = new Dictionary<string, Action>();
         Dictionary<string, CheckBox> checkersDownloads = new Dictionary<string, CheckBox>();
         Dictionary<string, List<string>>  checkersDownloadsDes = new Dictionary<string, List<string>>();
 
@@ -67,32 +50,14 @@ namespace WinWipe
         {
             InitializeComponent();
 
-            fullSize = 0;
-            installedSoftware = GetInstalledSoftware();
+            SysAdd.init();
+            cleaner.init();
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
 
-            Title = $"WinWipe {version} [{user_name}] Admin: {admin}";
-
-            try
-            {
-                Directory.CreateDirectory("C:\\Windows\\FolderForTest");
-                Directory.Delete("C:\\Windows\\FolderForTest");
-                admin = true;
-            }
-            catch 
-            {
-                admin = false;
-            }
-
-            //CREATE LOG FOLDER
-            Dispatcher.Invoke(new Action(() =>
-            {
-                if (!Directory.Exists(defaultLogDir))
-                    Directory.CreateDirectory(defaultLogDir);
-            }));
+            Title = $"WinWipe {version} [{SysAdd.user_name}] Admin: {SysAdd.admin}";
 
             if (customFolder == null)
             {
@@ -109,22 +74,16 @@ namespace WinWipe
                 { "WebCacheCheckerXAML", WebCacheCheckerXAML }
             };
 
-            checkersDes = new Dictionary<string, Delegate>()
+            checkersDes = new Dictionary<string, Action>()
             {
-                { "TmpCheckerXAML", new Action(CleanTemporary) },
-                { "RecycleCheckerXAML", new Action(CleanRecycleBin) },
-                { "UpdatesCheckerXAML", new Action(CleanOldUpdates) },
-                { "CustomFolderCheckerXAML", new Action(CleanCustomFolder) },
-                { "WebCacheCheckerXAML", new Action(CleanWebCache) }
+                { "TmpCheckerXAML", () => cleaner.CleanTemporary(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "RecycleCheckerXAML", () => cleaner.CleanRecycleBin(LogsTextBoxXAML, LogScrollXAML, CleanButtonXAML) },
+                { "UpdatesCheckerXAML", () => cleaner.CleanOldUpdates(LogsTextBoxXAML, LogScrollXAML) },
+                { "CustomFolderCheckerXAML", () => cleaner.CleanCustomFolder(customFolder, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "WebCacheCheckerXAML", () => cleaner.CleanWebCache(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) }
             };
 
-            browserCache = new Dictionary<string, string>()
-            {
-                { "chrome.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
-                { "firefox.exe", GetFirefoxCache(user_name) },
-                { "opera.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
-                { "yandex.exe", $"C:\\Users\\{user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
-            };
+            
 
             //DICTS FOR DOWNLOADS
             checkersDownloads = new Dictionary<string, CheckBox>()
@@ -150,281 +109,6 @@ namespace WinWipe
             };
         }
 
-
-        //ADDITIONAL
-
-        private void AddLog(string message)
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                if (LogsTextBoxXAML.Text.Length > 10000)
-                {
-                    LogsTextBoxXAML.Clear();
-                }
-            }));
-            if (string.IsNullOrEmpty(message))
-            {
-                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
-            }
-            else if (message == "sep")
-            {
-                AddLog("============");
-            }
-            else
-            {
-                Dispatcher.Invoke(new Action(() => 
-                { 
-                    LogsTextBoxXAML.AppendText($"{message}\n");
-                    log.Append($"({DateTime.Now}) {message}\n");
-                }));
-            }
-            Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
-        }
-
-        private string GetFirefoxCache(string username)
-        {
-            string path = $"C:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
-            if (Directory.Exists(path))
-            {
-                var tmp = Directory.GetDirectories(path);
-                string output = "NONE";
-                foreach (var dir in tmp)
-                {
-                    var timeOfUsed = Directory.GetLastWriteTime(dir).Date;
-                    DateTime timeNow = DateTime.Now.Date;
-                    if (DateTime.Equals(timeNow, timeOfUsed))
-                    {
-                        output = dir + "\\cache2\\entries";
-                    }
-                }
-                return output;
-            }
-            else
-            {
-                return "NONE";
-            }
-        }
-
-        private void AddToFinal(string file)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                FileInfo lng = new FileInfo(file);
-                try
-                {
-                    fullSize += lng.Length;
-                }
-                catch { }
-                
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
-            });
-        }
-
-        private void RemoveFromFinal(string file)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                FileInfo lng = new FileInfo(file);
-                fullSize -= lng.Length;
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
-            });
-        }
-
-        private void ResetFinal()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                fullSize = 0;
-                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
-            });
-        }
-
-        static String BytesToString(long byteCount)
-        {
-            string[] suf = { " B", " KB", " MB", " GB", " TB", " PB", " EB" };
-            if (byteCount == 0)
-                return "0" + suf[0];
-            long bytes = Math.Abs(byteCount);
-            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return (Math.Sign(byteCount) * num).ToString() + suf[place];
-        }
-
-        static List<string> GetInstalledSoftware()
-        {
-            List<string> browsers = new List<string>();
-            string registryPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(registryPath))
-            {
-                if (key != null)
-                {
-                    string[] subKeyNames = key.GetSubKeyNames();
-
-                    foreach (var subKeyName in subKeyNames)
-                    {
-                        try
-                        {
-                            string browserPath = key.OpenSubKey(subKeyName)?.GetValue("")?.ToString();
-                            if (browserPath != null)
-                                browsers.Add($"{subKeyName}");
-                        }
-                        catch { }
-                    }
-                }
-            }
-            return browsers;
-        }
-
-
-        //ACTIONS
-        // Try add to other script
-
-        private void FullRemove(string dir)
-        {
-            try
-            {
-                foreach (var file in Directory.GetFiles(dir))
-                {
-                    try
-                    {
-                        AddToFinal(file);
-                        File.Delete(file);
-                        AddLog($"[OK] File {file} deleted");
-                    }
-                    catch (Exception ex)
-                    {
-                        RemoveFromFinal(file);
-                        if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] File \"{file}\" is not exist"); }
-                        else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] File \"{file}\" access denied"); }
-                        else { AddLog($"[Error] {ex.Message}"); }
-                        continue;
-                    }
-                }
-                foreach (var subdir in Directory.GetDirectories(dir))
-                {
-                    Dispatcher.Invoke(() => FullRemove(subdir));
-                }
-                try
-                {
-                    Directory.Delete(dir);
-                    AddLog($"[OK] Dir {dir} deleted");
-                }
-                catch (Exception ex)
-                {
-                    AddLog($"[Error] {ex.Message}");
-                }
-            }
-            catch (Exception ex) 
-            {
-                if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] Directory \"{dir}\" is not exist"); }
-                else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] Directory \"{dir}\" access denied"); }
-                else { AddLog($"[Error] {ex.Message}"); }
-            }
-        }
-
-        private async void CleanTemporary()
-        {
-            AddLog($"\t\tCleaning temporary files");
-            try
-            {
-                await Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
-                await Task.Run(() => FullRemove($"C:\\Users\\{user_name}\\AppData\\Local\\Temp"));
-            }
-            catch (Exception err)
-            {
-                AddLog($"[Error] {err}");
-            }
-        }
-
-        private void CleanRecycleBin()
-        {
-            try
-            {
-                CleanButtonXAML.IsEnabled = false;
-                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
-                if (result != 0)
-                {
-                    AddLog("[Error] Recycle bin error");
-                }
-                else
-                {
-                    AddLog("[OK] Recycle bin clean");
-                }
-            }
-            finally
-            {
-                CleanButtonXAML.IsEnabled = true;
-            }
-        }
-
-        private async void CleanOldUpdates()
-        {
-            AddLog($"\t\tCleaning old updates");
-            try
-            {
-                Process proc = await Task.Run(() => Process.Start(new ProcessStartInfo
-                {
-                    FileName = "cmd",
-                    Arguments = "rd /s /q c:windows.old",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }));
-                AddLog($"[OK] Done");
-            }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
-        }
-
-        private async void CleanWebCache()
-        {
-            foreach (var browser in browserCache.Keys)
-            {
-                if (installedSoftware.Contains(browser))
-                {
-                    await Task.Run(() => FullRemove(browserCache[browser]));
-                    Debug.WriteLine(browser);
-                }
-            }
-        }
-
-
-        private void CleanDownloads(List<string> item)
-        {
-            AddLog($"\t\tCleaning downloads ");
-            foreach (var file in Directory.GetFiles($"C:\\Users\\{user_name}\\Downloads"))
-            {
-                foreach (var im in item)
-                {
-                    if (file.EndsWith(im))
-                    {
-                        try
-                        {
-                            AddToFinal(file);
-                            File.Delete(file);
-                            AddLog($"[OK] File {file} deleted");
-                        }
-                        catch (Exception ex)
-                        {
-                            RemoveFromFinal(file);
-                            AddLog($"[Error] {ex.Message}");
-                        }
-                    }
-                }
-            }
-            AddLog("[OK] Done");
-        }
-
-        private void CleanCustomFolder()
-        {
-            AddLog($"\t\tCleaning custom folder");
-            try
-            {
-                Task.Run(() => FullRemove(customFolder));
-            }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
-        }
-
-
         //BUTTONS EVENTS
 
         private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
@@ -433,17 +117,17 @@ namespace WinWipe
             {
                 try
                 {
-                    string newLog = $"{defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
+                    string newLog = $"{SysAdd.defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
                                     $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.log";
 
                     using (StreamWriter sw = File.CreateText(newLog))
                     {
-                        sw.WriteLine(log.ToString());
+                        sw.WriteLine(SysAdd.log.ToString());
                     }
 
-                    log.Clear();
+                    SysAdd.log.Clear();
 
-                    Log_Viewer log_Viewer = new Log_Viewer(defaultLogDir);
+                    Log_Viewer log_Viewer = new Log_Viewer(SysAdd.defaultLogDir);
                     log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     log_Viewer.Owner = this;
                     log_Viewer.Show();
@@ -454,7 +138,6 @@ namespace WinWipe
                 }
             }));
         }
-
 
         private void CleanLogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
@@ -470,20 +153,20 @@ namespace WinWipe
                 customFolder = dialog.SelectedPath;
                 CustomFolderCheckerXAML.IsEnabled = true;
                 CustomFolderCheckerXAML.IsChecked = true;
-                AddLog("Custom folder is " + customFolder);
+                Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Custom folder is " + customFolder, LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
             }
         }
 
         private void btn_clean(object sender, RoutedEventArgs e)
         {
-            ResetFinal();
+            Dispatcher.Invoke(new Action(() => SysAdd.ResetFinal(FinalLabelXAML)));
             CleanButtonXAML.IsEnabled = false;
 
             // FIX IT PLS
             // WTF ADAM? FIX IT!!!!!
-            AddLog("");
-            AddLog("Clean start");
-            AddLog("sep");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Clean start", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("sep", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
 
             //MAIN
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
@@ -513,7 +196,7 @@ namespace WinWipe
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            Dispatcher.Invoke(new Action(() => CleanDownloads(checkersDownloadsDes[checkBox.Name])));
+                            Dispatcher.Invoke(new Action(() => cleaner.CleanDownloads(checkersDownloadsDes[checkBox.Name], LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher)));
                         }
                     }
                     catch (Exception err)
