@@ -17,9 +17,41 @@ namespace WinWipe
     internal class SystemAdd
     {
         // Variables
+        public string user_name = Environment.UserName;
         public StringBuilder log = new StringBuilder();
+        public long fullSize;
+        public List<string> installedSoftware = new List<string>();
+        public bool admin = false;
+        public string defaultLogDir;
+        public string defaultLogFile;
 
         // Actions
+        public void init()
+        {
+            defaultLogDir = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
+            defaultLogFile = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
+
+            fullSize = 0;
+            installedSoftware = GetInstalledSoftware();
+
+            // ADMIN CHECK
+            try
+            {
+                Directory.CreateDirectory("C:\\Windows\\FolderForTest");
+                Directory.Delete("C:\\Windows\\FolderForTest");
+                admin = true;
+            }
+            catch
+            {
+                admin = false;
+            }
+
+            // CREATE LOG FOLDER
+            if (!Directory.Exists(defaultLogDir))
+                Directory.CreateDirectory(defaultLogDir);
+
+        }
+
         public void AddLog(string message, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML)
         {
             if (LogsTextBoxXAML.Text.Length > 10000)
@@ -78,6 +110,30 @@ namespace WinWipe
             int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
             double num = Math.Round(bytes / Math.Pow(1024, place), 1);
             return (Math.Sign(byteCount) * num).ToString() + suf[place];
+        }
+
+        public void AddToFinal(string file, Label FinalLabelXAML)
+        {
+            FileInfo lng = new FileInfo(file);
+            try
+            {
+                fullSize += lng.Length;
+            }
+            catch { }
+            FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+        }
+
+        public void RemoveFromFinal(string file, Label FinalLabelXAML)
+        {
+                FileInfo lng = new FileInfo(file);
+                fullSize -= lng.Length;
+                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+        }
+
+        public void ResetFinal(Label FinalLabelXAML)
+        {
+                fullSize = 0;
+                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
         }
     }
 }

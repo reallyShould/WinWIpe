@@ -15,6 +15,8 @@ namespace WinWipe
 {
     internal class Cleaner
     {
+        SystemAdd SysAdd = new SystemAdd();
+
 
 
         public string GetFirefoxCache(string username)
