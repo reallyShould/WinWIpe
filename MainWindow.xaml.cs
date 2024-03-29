@@ -22,6 +22,9 @@ namespace WinWipe
 
     public partial class MainWindow : Window
     {
+        //Refactor 
+        SystemAdd SysAdd = new SystemAdd();
+
         //FOR RECYCLE BIN
         enum RecycleFlags : uint
         {
@@ -36,7 +39,6 @@ namespace WinWipe
         static public string version = "1.0";
         public string defaultLogDir = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
         public string defaultLogFile = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
-        StringBuilder log = new StringBuilder();
         public string customFolder = null;
         public long fullSize;
         public int counter = 0;
@@ -153,33 +155,7 @@ namespace WinWipe
 
         //ADDITIONAL
 
-        private void AddLog(string message)
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                if (LogsTextBoxXAML.Text.Length > 10000)
-                {
-                    LogsTextBoxXAML.Clear();
-                }
-            }));
-            if (string.IsNullOrEmpty(message))
-            {
-                Dispatcher.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
-            }
-            else if (message == "sep")
-            {
-                AddLog("============");
-            }
-            else
-            {
-                Dispatcher.Invoke(new Action(() => 
-                { 
-                    LogsTextBoxXAML.AppendText($"{message}\n");
-                    log.Append($"({DateTime.Now}) {message}\n");
-                }));
-            }
-            Dispatcher.Invoke(new Action(() => LogScrollXAML.ScrollToEnd()));
-        }
+        
 
         private string GetFirefoxCache(string username)
         {
@@ -278,7 +254,6 @@ namespace WinWipe
 
 
         //ACTIONS
-        // Try add to other script
 
         private void FullRemove(string dir)
         {
@@ -290,14 +265,14 @@ namespace WinWipe
                     {
                         AddToFinal(file);
                         File.Delete(file);
-                        AddLog($"[OK] File {file} deleted");
+                        Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] File {file} deleted", LogsTextBoxXAML, LogScrollXAML)));
                     }
                     catch (Exception ex)
                     {
                         RemoveFromFinal(file);
-                        if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] File \"{file}\" is not exist"); }
-                        else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] File \"{file}\" access denied"); }
-                        else { AddLog($"[Error] {ex.Message}"); }
+                        if (ex is DirectoryNotFoundException) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Not Found] File \"{file}\" is not exist", LogsTextBoxXAML, LogScrollXAML))); }
+                        else if (ex is UnauthorizedAccessException) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Access denied] File \"{file}\" access denied", LogsTextBoxXAML, LogScrollXAML))); }
+                        else { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML))); }
                         continue;
                     }
                 }
@@ -308,24 +283,24 @@ namespace WinWipe
                 try
                 {
                     Directory.Delete(dir);
-                    AddLog($"[OK] Dir {dir} deleted");
+                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] Dir {dir} deleted", LogsTextBoxXAML, LogScrollXAML)));
                 }
                 catch (Exception ex)
                 {
-                    AddLog($"[Error] {ex.Message}");
+                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML)));
                 }
             }
             catch (Exception ex) 
             {
-                if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] Directory \"{dir}\" is not exist"); }
-                else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] Directory \"{dir}\" access denied"); }
-                else { AddLog($"[Error] {ex.Message}"); }
+                if (ex is DirectoryNotFoundException) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Not Found] Directory \"{dir}\" is not exist", LogsTextBoxXAML, LogScrollXAML))); }
+                else if (ex is UnauthorizedAccessException) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Access denied] Directory \"{dir}\" access denied", LogsTextBoxXAML, LogScrollXAML))); }
+                else { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML))); }
             }
         }
 
         private async void CleanTemporary()
         {
-            AddLog($"\t\tCleaning temporary files");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning temporary files", LogsTextBoxXAML, LogScrollXAML)));
             try
             {
                 await Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
@@ -333,7 +308,7 @@ namespace WinWipe
             }
             catch (Exception err)
             {
-                AddLog($"[Error] {err}");
+                Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML)));
             }
         }
 
@@ -345,11 +320,11 @@ namespace WinWipe
                 uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
                 if (result != 0)
                 {
-                    AddLog("[Error] Recycle bin error");
+                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[Error] Recycle bin error", LogsTextBoxXAML, LogScrollXAML)));
                 }
                 else
                 {
-                    AddLog("[OK] Recycle bin clean");
+                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[OK] Recycle bin clean", LogsTextBoxXAML, LogScrollXAML)));
                 }
             }
             finally
@@ -360,7 +335,7 @@ namespace WinWipe
 
         private async void CleanOldUpdates()
         {
-            AddLog($"\t\tCleaning old updates");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning old updates", LogsTextBoxXAML, LogScrollXAML)));
             try
             {
                 Process proc = await Task.Run(() => Process.Start(new ProcessStartInfo
@@ -370,9 +345,9 @@ namespace WinWipe
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }));
-                AddLog($"[OK] Done");
+                Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] Done", LogsTextBoxXAML, LogScrollXAML)));
             }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
+            catch (Exception err) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML))); }
         }
 
         private async void CleanWebCache()
@@ -390,7 +365,7 @@ namespace WinWipe
 
         private void CleanDownloads(List<string> item)
         {
-            AddLog($"\t\tCleaning downloads ");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning downloads ", LogsTextBoxXAML, LogScrollXAML)));
             foreach (var file in Directory.GetFiles($"C:\\Users\\{user_name}\\Downloads"))
             {
                 foreach (var im in item)
@@ -401,27 +376,27 @@ namespace WinWipe
                         {
                             AddToFinal(file);
                             File.Delete(file);
-                            AddLog($"[OK] File {file} deleted");
+                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] File {file} deleted", LogsTextBoxXAML, LogScrollXAML)));
                         }
                         catch (Exception ex)
                         {
                             RemoveFromFinal(file);
-                            AddLog($"[Error] {ex.Message}");
+                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML)));
                         }
                     }
                 }
             }
-            AddLog("[OK] Done");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[OK] Done", LogsTextBoxXAML, LogScrollXAML)));
         }
 
         private void CleanCustomFolder()
         {
-            AddLog($"\t\tCleaning custom folder");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning custom folder", LogsTextBoxXAML, LogScrollXAML)));
             try
             {
                 Task.Run(() => FullRemove(customFolder));
             }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
+            catch (Exception err) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML))); }
         }
 
 
@@ -438,10 +413,10 @@ namespace WinWipe
 
                     using (StreamWriter sw = File.CreateText(newLog))
                     {
-                        sw.WriteLine(log.ToString());
+                        sw.WriteLine(SysAdd.log.ToString());
                     }
 
-                    log.Clear();
+                    SysAdd.log.Clear();
 
                     Log_Viewer log_Viewer = new Log_Viewer(defaultLogDir);
                     log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -470,7 +445,7 @@ namespace WinWipe
                 customFolder = dialog.SelectedPath;
                 CustomFolderCheckerXAML.IsEnabled = true;
                 CustomFolderCheckerXAML.IsChecked = true;
-                AddLog("Custom folder is " + customFolder);
+                Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Custom folder is " + customFolder, LogsTextBoxXAML, LogScrollXAML)));
             }
         }
 
@@ -481,9 +456,9 @@ namespace WinWipe
 
             // FIX IT PLS
             // WTF ADAM? FIX IT!!!!!
-            AddLog("");
-            AddLog("Clean start");
-            AddLog("sep");
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("", LogsTextBoxXAML, LogScrollXAML)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Clean start", LogsTextBoxXAML, LogScrollXAML)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("sep", LogsTextBoxXAML, LogScrollXAML)));
 
             //MAIN
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
