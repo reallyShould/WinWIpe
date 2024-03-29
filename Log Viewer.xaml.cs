@@ -57,9 +57,13 @@ namespace WinWipe
         private void DeleteLogButtonXAML_Click(object sender, RoutedEventArgs e)
         {
             string fullPath = $"{defaultLogDir}\\{LogsListBoxXAML.SelectedItem}";
-            File.Delete(fullPath);
-                    UpdateList();
-                }
+            try
+            {
+                File.Delete(fullPath);
+                UpdateList();
+            }
+            catch {}
+        }
 
         private void CleanLogButtonXAML_Click(object sender, RoutedEventArgs e)
         {

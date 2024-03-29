@@ -210,7 +210,12 @@ namespace WinWipe
             Dispatcher.Invoke(() =>
             {
                 FileInfo lng = new FileInfo(file);
-                fullSize += lng.Length;
+                try
+                {
+                    fullSize += lng.Length;
+                }
+                catch { }
+                
                 FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
             });
         }
@@ -221,7 +226,7 @@ namespace WinWipe
             {
                 FileInfo lng = new FileInfo(file);
                 fullSize -= lng.Length;
-                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
             });
         }
 
@@ -230,13 +235,13 @@ namespace WinWipe
             Dispatcher.Invoke(() =>
             {
                 fullSize = 0;
-                FinalLabelXAML.Content = $"Final {BytesToString(fullSize)}";
+                FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
             });
         }
 
         static String BytesToString(long byteCount)
         {
-            string[] suf = { "Byt", "KB", "MB", "GB", "TB", "PB", "EB" };
+            string[] suf = { " B", " KB", " MB", " GB", " TB", " PB", " EB" };
             if (byteCount == 0)
                 return "0" + suf[0];
             long bytes = Math.Abs(byteCount);
@@ -290,7 +295,9 @@ namespace WinWipe
                     catch (Exception ex)
                     {
                         RemoveFromFinal(file);
-                        AddLog($"[Error] {ex.Message}");
+                        if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] File \"{file}\" is not exist"); }
+                        else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] File \"{file}\" access denied"); }
+                        else { AddLog($"[Error] {ex.Message}"); }
                         continue;
                     }
                 }
@@ -308,7 +315,12 @@ namespace WinWipe
                     AddLog($"[Error] {ex.Message}");
                 }
             }
-            catch (Exception err) { AddLog($"[Error] {err}"); }
+            catch (Exception ex) 
+            {
+                if (ex is DirectoryNotFoundException) { AddLog($"[Not Found] Directory \"{dir}\" is not exist"); }
+                else if (ex is UnauthorizedAccessException) { AddLog($"[Access denied] Directory \"{dir}\" access denied"); }
+                else { AddLog($"[Error] {ex.Message}"); }
+            }
         }
 
         private async void CleanTemporary()
@@ -325,12 +337,12 @@ namespace WinWipe
             }
         }
 
-        private async void CleanRecycleBin()
+        private void CleanRecycleBin()
         {
             try
             {
                 CleanButtonXAML.IsEnabled = false;
-                uint result = await Task.Run(() => SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND));
+                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
                 if (result != 0)
                 {
                     AddLog("[Error] Recycle bin error");

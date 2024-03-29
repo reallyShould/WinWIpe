@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="WinWipe" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png">
+        Title="WinWipe" Height="500" Width="800" ResizeMode="NoResize" Icon="/data-cleaning.png" Background="#FF003630" BorderBrush="#FF003630" Foreground="#FF003630" OpacityMask="#FF003630">
 
     <Grid x:Name="MainGridXAML" Margin="0,0,0,0" Background="#003630" >
         <ScrollViewer x:Name="SelectScrollXAML" Margin="0,132,0,10" Background="#00877A" HorizontalAlignment="Left" Width="150">
