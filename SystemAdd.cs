@@ -52,27 +52,31 @@ namespace WinWipe
 
         }
 
-        public void AddLog(string message, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML)
+        public void AddLog(string message, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Dispatcher d)
         {
-            if (LogsTextBoxXAML.Text.Length > 10000)
+            d.Invoke(new Action(() =>
             {
-                LogsTextBoxXAML.Clear();
-            }
-
+                if (LogsTextBoxXAML.Text.Length > 10000)
+                {
+                    LogsTextBoxXAML.Clear();
+                }
+            }));
             if (string.IsNullOrEmpty(message))
             {
-                LogsTextBoxXAML.Clear();
+                d.Invoke(new Action(() => LogsTextBoxXAML.Clear()));
             }
             else if (message == "sep")
             {
-                AddLog("============", LogsTextBoxXAML, LogScrollXAML);
+                d.Invoke(new Action(() => AddLog("============", LogsTextBoxXAML, LogScrollXAML, d)));
             }
             else
             {
-                LogsTextBoxXAML.AppendText($"{message}\n");
-                log.Append($"({DateTime.Now}) {message}\n");
+                d.Invoke(new Action(() =>
+                {
+                    LogsTextBoxXAML.AppendText($"{message}\n");
+                    log.Append($"({DateTime.Now}) {message}\n");
+                }));
             }
-            LogScrollXAML.ScrollToEnd();
         }
 
         public List<string> GetInstalledSoftware()
@@ -123,11 +127,14 @@ namespace WinWipe
             FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
         }
 
-        public void RemoveFromFinal(string file, Label FinalLabelXAML)
+        public void RemoveFromFinal(string file, Label FinalLabelXAML, Dispatcher d)
         {
+            d.Invoke(() =>
+            {
                 FileInfo lng = new FileInfo(file);
                 fullSize -= lng.Length;
                 FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
+            });
         }
 
         public void ResetFinal(Label FinalLabelXAML)

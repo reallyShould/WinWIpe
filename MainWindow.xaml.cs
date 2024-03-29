@@ -22,16 +22,6 @@ namespace WinWipe
         SystemAdd SysAdd = new SystemAdd();
         Cleaner cleaner = new Cleaner();
 
-        //FOR RECYCLE BIN
-        enum RecycleFlags : uint
-        {
-            SHERB_NOCONFIRMATION = 0x00000001,
-            SHERB_NOPROGRESSUI = 0x00000002,
-            SHERB_NOSOUND = 0x00000004
-        }
-        [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
-        static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
-
         //MAIN VARIABLES
         static public string version = "1.0";
         public string customFolder = null;
@@ -40,7 +30,6 @@ namespace WinWipe
 
 
         List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
-        Dictionary<string, string> browserCache = new Dictionary<string, string>();
 
         //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
@@ -52,7 +41,7 @@ namespace WinWipe
         List<string> word = new List<string>() { ".doc", ".docx" };
 
         Dictionary<string, CheckBox> checkers = new Dictionary<string, CheckBox>();
-        Dictionary<string, Delegate> checkersDes = new Dictionary<string, Delegate>();
+        Dictionary<string, Action> checkersDes = new Dictionary<string, Action>();
         Dictionary<string, CheckBox> checkersDownloads = new Dictionary<string, CheckBox>();
         Dictionary<string, List<string>>  checkersDownloadsDes = new Dictionary<string, List<string>>();
 
@@ -62,7 +51,7 @@ namespace WinWipe
             InitializeComponent();
 
             SysAdd.init();
-            
+            cleaner.init();
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -85,22 +74,16 @@ namespace WinWipe
                 { "WebCacheCheckerXAML", WebCacheCheckerXAML }
             };
 
-            checkersDes = new Dictionary<string, Delegate>()
+            checkersDes = new Dictionary<string, Action>()
             {
-                { "TmpCheckerXAML", new Action(CleanTemporary) },
-                { "RecycleCheckerXAML", new Action(CleanRecycleBin) },
-                { "UpdatesCheckerXAML", new Action(CleanOldUpdates) },
-                { "CustomFolderCheckerXAML", new Action(CleanCustomFolder) },
-                { "WebCacheCheckerXAML", new Action(CleanWebCache) }
+                { "TmpCheckerXAML", () => cleaner.CleanTemporary(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "RecycleCheckerXAML", () => cleaner.CleanRecycleBin(LogsTextBoxXAML, LogScrollXAML, CleanButtonXAML) },
+                { "UpdatesCheckerXAML", () => cleaner.CleanOldUpdates(LogsTextBoxXAML, LogScrollXAML) },
+                { "CustomFolderCheckerXAML", () => cleaner.CleanCustomFolder(customFolder, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "WebCacheCheckerXAML", () => cleaner.CleanWebCache(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) }
             };
 
-            browserCache = new Dictionary<string, string>()
-            {
-                { "chrome.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
-                { "firefox.exe", cleaner.GetFirefoxCache(SysAdd.user_name) },
-                { "opera.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
-                { "yandex.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
-            };
+            
 
             //DICTS FOR DOWNLOADS
             checkersDownloads = new Dictionary<string, CheckBox>()
@@ -124,169 +107,6 @@ namespace WinWipe
                 { "ArchiveCheckerXAML", archives },
                 { "DocumentsCheckerXAML", word }
             };
-        }
-
-        //ACTIONS
-
-        private void FullRemove(string dir)
-        {
-            try
-            {
-                foreach (var file in Directory.GetFiles(dir))
-                {
-                    try
-                    {
-                        Dispatcher.Invoke(new Action(() => SysAdd.AddToFinal(file, FinalLabelXAML)));
-                        File.Delete(file);
-                        Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] File {file} deleted", LogsTextBoxXAML, LogScrollXAML)));
-                    }
-                    catch (Exception ex)
-                    {
-                        Dispatcher.Invoke(new Action(() => SysAdd.RemoveFromFinal(file, FinalLabelXAML)));
-                        if (ex is DirectoryNotFoundException) 
-                        { 
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Not Found] File \"{file}\" is not exist", LogsTextBoxXAML, LogScrollXAML))); 
-                        }
-                        else if (ex is UnauthorizedAccessException) 
-                        { 
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Access Denied] File \"{file}\" access denied", LogsTextBoxXAML, LogScrollXAML))); 
-                        }
-                        else 
-                        { 
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML)));
-                        }
-                        continue;
-                    }
-                }
-                foreach (var subdir in Directory.GetDirectories(dir))
-                {
-                    Dispatcher.Invoke(() => FullRemove(subdir));
-                }
-                try
-                {
-                    Directory.Delete(dir);
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] Dir {dir} deleted", LogsTextBoxXAML, LogScrollXAML)));
-                }
-                catch (Exception ex)
-                {
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML)));
-                }
-            }
-            catch (Exception ex) 
-            {
-                if (ex is DirectoryNotFoundException) 
-                { 
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Not Found] Directory \"{dir}\" is not exist", LogsTextBoxXAML, LogScrollXAML))); 
-                }
-                else if (ex is UnauthorizedAccessException) 
-                { 
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Access Denied] Directory \"{dir}\" access denied", LogsTextBoxXAML, LogScrollXAML))); 
-                }
-                else 
-                { 
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML))); 
-                }
-            }
-        }
-
-        private async void CleanTemporary()
-        {
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning temporary files", LogsTextBoxXAML, LogScrollXAML)));
-            try
-            {
-                await Task.Run(() => FullRemove($"C:\\Windows\\Temp"));
-                await Task.Run(() => FullRemove($"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Temp"));
-            }
-            catch (Exception err)
-            {
-                Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML)));
-            }
-        }
-
-        private void CleanRecycleBin()
-        {
-            try
-            {
-                CleanButtonXAML.IsEnabled = false;
-                uint result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOCONFIRMATION | RecycleFlags.SHERB_NOPROGRESSUI | RecycleFlags.SHERB_NOSOUND);
-                if (result != 0)
-                {
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[Error] Recycle bin error", LogsTextBoxXAML, LogScrollXAML)));
-                }
-                else
-                {
-                    Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[OK] Recycle bin clean", LogsTextBoxXAML, LogScrollXAML)));
-                }
-            }
-            finally
-            {
-                CleanButtonXAML.IsEnabled = true;
-            }
-        }
-
-        private async void CleanOldUpdates()
-        {
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning old updates", LogsTextBoxXAML, LogScrollXAML)));
-            try
-            {
-                Process proc = await Task.Run(() => Process.Start(new ProcessStartInfo
-                {
-                    FileName = "cmd",
-                    Arguments = "rd /s /q c:windows.old",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }));
-                Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] Done", LogsTextBoxXAML, LogScrollXAML)));
-            }
-            catch (Exception err) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML))); }
-        }
-
-        private async void CleanWebCache()
-        {
-            foreach (var browser in browserCache.Keys)
-            {
-                if (SysAdd.installedSoftware.Contains(browser))
-                {
-                    await Task.Run(() => FullRemove(browserCache[browser]));
-                    Debug.WriteLine(browser);
-                }
-            }
-        }
-
-        private void CleanDownloads(List<string> item)
-        {
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning downloads ", LogsTextBoxXAML, LogScrollXAML)));
-            foreach (var file in Directory.GetFiles($"C:\\Users\\{SysAdd.user_name}\\Downloads"))
-            {
-                foreach (var im in item)
-                {
-                    if (file.EndsWith(im))
-                    {
-                        try
-                        {
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddToFinal(file, FinalLabelXAML)));
-                            File.Delete(file);
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[OK] File {file} deleted", LogsTextBoxXAML, LogScrollXAML)));
-                        }
-                        catch (Exception ex)
-                        {
-                            Dispatcher.Invoke(new Action(() => SysAdd.RemoveFromFinal(file, FinalLabelXAML)));
-                            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML)));
-                        }
-                    }
-                }
-            }
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("[OK] Done", LogsTextBoxXAML, LogScrollXAML)));
-        }
-
-        private void CleanCustomFolder()
-        {
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"\t\tCleaning custom folder", LogsTextBoxXAML, LogScrollXAML)));
-            try
-            {
-                Task.Run(() => FullRemove(customFolder));
-            }
-            catch (Exception err) { Dispatcher.Invoke(new Action(() => SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML))); }
         }
 
         //BUTTONS EVENTS
@@ -333,7 +153,7 @@ namespace WinWipe
                 customFolder = dialog.SelectedPath;
                 CustomFolderCheckerXAML.IsEnabled = true;
                 CustomFolderCheckerXAML.IsChecked = true;
-                Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Custom folder is " + customFolder, LogsTextBoxXAML, LogScrollXAML)));
+                Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Custom folder is " + customFolder, LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
             }
         }
 
@@ -344,9 +164,9 @@ namespace WinWipe
 
             // FIX IT PLS
             // WTF ADAM? FIX IT!!!!!
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("", LogsTextBoxXAML, LogScrollXAML)));
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Clean start", LogsTextBoxXAML, LogScrollXAML)));
-            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("sep", LogsTextBoxXAML, LogScrollXAML)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Clean start", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
+            Dispatcher.Invoke(new Action(() => SysAdd.AddLog("sep", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
 
             //MAIN
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
@@ -376,7 +196,7 @@ namespace WinWipe
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            Dispatcher.Invoke(new Action(() => CleanDownloads(checkersDownloadsDes[checkBox.Name])));
+                            Dispatcher.Invoke(new Action(() => cleaner.CleanDownloads(checkersDownloadsDes[checkBox.Name], LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher)));
                         }
                     }
                     catch (Exception err)
