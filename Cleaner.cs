@@ -12,8 +12,10 @@ namespace WinWipe
 {
     internal class Cleaner
     {
+        // internal classes
         SystemAdd SysAdd = new SystemAdd();
 
+        // VARIABLES
         public Dictionary<string, string> browserCache = new Dictionary<string, string>();
 
         // FOR RECYCLE BIN
@@ -25,6 +27,7 @@ namespace WinWipe
         }
         [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
         static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
+
 
         public void init()
         {
@@ -38,6 +41,7 @@ namespace WinWipe
             SysAdd.init();
         }
 
+        // return path to firefox cache
         public string GetFirefoxCache(string username)
         {
             string path = $"C:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
@@ -62,6 +66,7 @@ namespace WinWipe
             }
         }
 
+        // Remove folder with files
         public void FullRemove(string dir, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
             try
@@ -74,30 +79,21 @@ namespace WinWipe
                         {
                             SysAdd.AddToFinal(file, FinalLabelXAML);
                             File.Delete(file);
-                            SysAdd.AddLog($"[OK] File {file} deleted", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+                            SysAdd.AddLog($"[OK] {file}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
                         }
                         catch (Exception ex)
                         {
                             SysAdd.RemoveFromFinal(file, FinalLabelXAML, d);
-                            if (ex is DirectoryNotFoundException)
-                            {
-                                SysAdd.AddLog($"[Not Found] File \"{file}\" is not exist", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                            }
-                            else if (ex is UnauthorizedAccessException)
-                            {
-                                SysAdd.AddLog($"[Access Denied] File \"{file}\" access denied", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                            }
-                            else
-                            {
-                                SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                            }
+                            SysAdd.AddLog($"{SysAdd.outError(ex)} {file}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
                         }
                     });
                 }
+
                 foreach (var subdir in Directory.GetDirectories(dir))
                 {
                     d.Invoke(() => FullRemove(subdir, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
                 }
+
                 try
                 {
                     Directory.Delete(dir);
@@ -105,25 +101,15 @@ namespace WinWipe
                 }
                 catch (Exception ex)
                 {
-                    SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                }
-        }
-            catch (Exception ex)
-            {
-                if (ex is DirectoryNotFoundException)
-                {
-                    SysAdd.AddLog($"[Not Found] Directory \"{dir}\" is not exist", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                }
-                else if (ex is UnauthorizedAccessException)
-                {
-                    SysAdd.AddLog($"[Access Denied] Directory \"{dir}\" access denied", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-                }
-                else
-                {
-                    SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+                    SysAdd.AddLog($"{SysAdd.outError(ex)} {dir}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
                 }
             }
+            catch (Exception ex)
+            {
+                SysAdd.AddLog($"{SysAdd.outError(ex)} {dir}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+            }
         }
+
 
         public async void CleanTemporary(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
@@ -134,11 +120,12 @@ namespace WinWipe
                 await Task.Run(() => FullRemove($"C:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
 
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+                SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
             }
         }
+
 
         public void CleanRecycleBin(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Button CleanButtonXAML)
         {
@@ -161,6 +148,7 @@ namespace WinWipe
             }
         }
 
+
         public async void CleanOldUpdates(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML)
         {
             SysAdd.AddLog($"\t\tCleaning old updates", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
@@ -178,6 +166,7 @@ namespace WinWipe
             catch (Exception err) { SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher); }
         }
 
+
         public async void CleanWebCache(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
             foreach (var browser in browserCache.Keys)
@@ -190,9 +179,10 @@ namespace WinWipe
             }
         }
 
+
         public void CleanDownloads(List<string> item, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
-            SysAdd.AddLog($"\t\tCleaning downloads ", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+            SysAdd.AddLog($"\t\tCleaning downloads", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
             foreach (var file in Directory.GetFiles($"C:\\Users\\{SysAdd.user_name}\\Downloads"))
             {
                 foreach (var im in item)
@@ -208,13 +198,13 @@ namespace WinWipe
                         catch (Exception ex)
                         {
                             SysAdd.RemoveFromFinal(file, FinalLabelXAML, d);
-                            SysAdd.AddLog($"[Error] {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+                            SysAdd.AddLog($"{SysAdd.outError(ex)} {file}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
                         }
                     }
                 }
             }
-            SysAdd.AddLog("[OK] Done", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
         }
+
 
         public void CleanCustomFolder(string customFolder, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
@@ -223,7 +213,10 @@ namespace WinWipe
             {
                 FullRemove(customFolder, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d);
             }
-            catch (Exception err) { SysAdd.AddLog($"[Error] {err}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher); }
+            catch (Exception ex) 
+            { 
+                SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher); 
+            }
         }
     }
 }

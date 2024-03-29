@@ -142,5 +142,12 @@ namespace WinWipe
                 fullSize = 0;
                 FinalLabelXAML.Content = $"Final: {BytesToString(fullSize)}";
         }
+
+        public string outError(Exception ex)
+        {
+            if (ex is DirectoryNotFoundException) return "[Not Found]";
+            else if (ex is UnauthorizedAccessException) return "[Access Denied]";
+            else return $"[Error] {ex.Message}";
+        }
     }
 }
