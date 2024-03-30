@@ -94,7 +94,7 @@ namespace WinWipe
             }
             else
             {
-                writer.Write(TokenTextBoxXAML);
+                writer.Write(TokenTextBoxXAML.Text);
             }
             writer.Close();
 

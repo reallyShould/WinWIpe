@@ -52,8 +52,7 @@
   <PropertyGroup />
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>data-cleaning.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.10.1.0, Culture=neutral, PublicKeyToken=e25603a88b3aa7da, processorArchitecture=MSIL">
@@ -163,6 +162,7 @@
     <Resource Include="Icon\data-cleaning2.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="data-cleaning.ico" />
     <Content Include="Grammer\ascii.py" />
     <Content Include="Grammer\functions\audio.py" />
     <Content Include="Grammer\functions\script.py" />
