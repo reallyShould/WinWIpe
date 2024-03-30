@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WinWipe"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Grammer" Height="160" Width="400" ResizeMode="NoResize">
+        Title="Grammer" Height="160" Width="400" ResizeMode="NoResize" Icon="Grammer/IMG/icon.png">
     <Grid Background="#003630">
         <Grid Height="122" VerticalAlignment="Top">
             <TextBox x:Name="PathTextBoxXAML" Text="Path to Grammer" TextWrapping="Wrap" Background="#005E55" IsReadOnly="True" BorderBrush="#005E55" FontFamily="Corbel" Foreground="#00B09E" FontSize="16" Margin="10,10,114,92"/>
