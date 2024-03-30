@@ -26,7 +26,7 @@ namespace WinWipe
         SystemAdd SysAdd = new SystemAdd();
 
         private string grammerTestToken = "6556579523:AAH8DEEY0f0AWlUxVlEpW2RhAsarHtqFb3I";
-        private string grammerURL = "https://github.com/reallyShould/Grammer/releases/download/Testing/Grammer.exe";
+        private string grammerURL = "https://github.com/reallyShould/WinWipe/releases/download/1.0/Grammer.exe";
         private string grammerPath;
         private string grammerStart;
         private bool installed = false;
@@ -66,11 +66,6 @@ namespace WinWipe
                 grammerPath = dialog.SelectedPath;
             }
             Init();
-        }
-
-        private string readPath(string path)
-        {
-            return "";
         }
 
         private void InstallButtonXAML_Click(object sender, RoutedEventArgs e)

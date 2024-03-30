@@ -1,0 +1,7 @@
+mss
+pyaudio
+pyTelegramBotAPI
+wave
+psutil
+zipfile
+webbrowser

@@ -150,12 +150,21 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Icon\data-cleaning.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icon\data-cleaning2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Grammer\ascii.py" />
+    <Content Include="Grammer\functions\audio.py" />
+    <Content Include="Grammer\functions\script.py" />
+    <Content Include="Grammer\functions\system.py" />
+    <Resource Include="Grammer\IMG\icon.png" />
+    <Resource Include="Grammer\IMG\icon2.png" />
+    <Content Include="Grammer\main.py" />
+    <Resource Include="Grammer\req.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
