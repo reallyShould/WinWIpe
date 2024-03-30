@@ -211,5 +211,13 @@ namespace WinWipe
             }
             CleanButtonXAML.IsEnabled = true;
         }
+
+        private void GrammerButtonXAML_Click(object sender, RoutedEventArgs e)
+        {
+            Grammer grammer = new Grammer();
+            grammer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            grammer.Owner = this;
+            grammer.Show();
+        }
     }
 }
