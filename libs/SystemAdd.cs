@@ -77,6 +77,7 @@ namespace WinWipe
                     log.Append($"({DateTime.Now}) {message}\n");
                 }));
             }
+            LogScrollXAML.ScrollToEnd();
         }
 
         public List<string> GetInstalledSoftware()

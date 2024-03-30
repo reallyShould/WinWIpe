@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinWipe"
         mc:Ignorable="d"
-        Title="Log Viewer (unstable with large logs)" Height="500" Width="800" Icon="/data-cleaning.png">
+        Title="Log Viewer (unstable with large logs)" Height="500" Width="800" Icon="images/data-cleaning.png">
     <Grid x:Name="LogGridXAML" Margin="0,0,0,0" Background="#003630">
         <ScrollViewer x:Name="LogsScrollViewerXAML" Margin="10,10,0,45" HorizontalAlignment="Left" Width="150">
             <ListBox x:Name="LogsListBoxXAML" Width="150" SelectionChanged="LogsListBoxXAML_SelectionChanged" Background="#00877A" BorderBrush="#FF00877A" FontFamily="Corbel"/>

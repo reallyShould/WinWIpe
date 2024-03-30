@@ -15,6 +15,9 @@ namespace WinWipe
 {
     /// TODO
     /// System info
+    /// Dirs
+    /// images etc.
+    /// 
 
     public partial class MainWindow : Window
     {
@@ -134,6 +137,7 @@ namespace WinWipe
                 }
                 catch (Exception ex)
                 {
+                    LogsTextBoxXAML.Text = ex.Message;
                     Debug.WriteLine("Write error: " + ex.Message);
                 }
             }));
