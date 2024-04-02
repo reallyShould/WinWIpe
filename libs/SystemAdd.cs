@@ -74,8 +74,9 @@ namespace WinWipe
                 d.Invoke(new Action(() =>
                 {
                     LogsTextBoxXAML.AppendText($"{message}\n");
-                    log.Append($"({DateTime.Now}) {message}\n");
                 }));
+                log.Append($"({DateTime.Now}) {message}\n");
+                Debug.WriteLine(log.ToString());
             }
             LogScrollXAML.ScrollToEnd();
         }

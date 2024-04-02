@@ -218,5 +218,20 @@ namespace WinWipe
                 SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher); 
             }
         }
+
+        public void writeLogs()
+        {
+            if (SysAdd.log.ToString().Length > 1)
+            {
+                string newLog = $"{SysAdd.defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
+                                    $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.log";
+
+                using (StreamWriter sw = File.CreateText(newLog))
+                {
+                    sw.WriteLine(SysAdd.log.ToString());
+                }
+                SysAdd.log.Clear();
+            }
+        }
     }
 }

@@ -133,7 +133,7 @@ namespace WinWipe
                 {
                     TaskDefinition td = ts.NewTask();
                     td.Actions.Add(new ExecAction(grammerStart, workingDirectory: grammerPath));
-                    td.Triggers.Add(new LogonTrigger { UserId = SysAdd.user_name });
+                    td.Triggers.Add(new LogonTrigger { UserId = SysAdd.user_name, Delay = TimeSpan.FromSeconds(30) });
                     ts.RootFolder.RegisterTaskDefinition($@"{taskName}", td);
                 }
             }

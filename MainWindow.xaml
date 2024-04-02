@@ -44,9 +44,8 @@
             <Image x:Name="LogoImageXAML" HorizontalAlignment="Left" Height="100" Width="100"  Source="images/data-cleaning.png" VerticalAlignment="Top"/>
             <Label x:Name="TitleLabelXAML" Content="WinWipe" Width="180" Margin="145,0,0,0" FontSize="43" FontFamily="Corbel" VerticalContentAlignment="Stretch" Foreground="#00D4BF" Height="59" VerticalAlignment="Top" HorizontalAlignment="Left" FontWeight="Bold"/>
             <Label x:Name="DescriptionLabelXAML" Content="by reallyShould" Width="100" Margin="145,50,0,0" FontFamily="Bahnschrift" Background="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#00B09E" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top"/>
-            <Button x:Name="InfoButtonXAML" Content="System info" HorizontalAlignment="Right" VerticalAlignment="Top" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14"/>
             <Button x:Name="LogsButtonXAML" Content="Open logs" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14" Click="LogsButtonXAML_Click"/>
-            <Button x:Name="GrammerButtonXAML" Content="Grammer" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14" Margin="0,0,104,92" Click="GrammerButtonXAML_Click"/>
+            <Button x:Name="GrammerButtonXAML" Content="Grammer" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="99" Height="25" FontFamily="Corbel" Background="#00B09E" BorderBrush="#00B09E" FontSize="14" Margin="0,0,0,92" Click="GrammerButtonXAML_Click"/>
         </Grid>
     </Grid>
 </Window>

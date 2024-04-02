@@ -26,7 +26,7 @@ namespace WinWipe
         Cleaner cleaner = new Cleaner();
 
         //MAIN VARIABLES
-        static public string version = "1.0";
+        static public string version = "1.1";
         public string customFolder = null;
         public int counter = 0;
         public string start_message = $"=================\nWinWipe by reallyShould\nVersion {version}\n=================\n";
@@ -120,15 +120,7 @@ namespace WinWipe
             {
                 try
                 {
-                    string newLog = $"{SysAdd.defaultLogDir}\\{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}_" +
-                                    $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.log";
-
-                    using (StreamWriter sw = File.CreateText(newLog))
-                    {
-                        sw.WriteLine(SysAdd.log.ToString());
-                    }
-
-                    SysAdd.log.Clear();
+                    cleaner.writeLogs();
 
                     Log_Viewer log_Viewer = new Log_Viewer(SysAdd.defaultLogDir);
                     log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
