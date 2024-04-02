@@ -51,10 +51,15 @@ namespace WinWipe
 
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
 
-            SysAdd.init();
-            cleaner.init();
+                SysAdd.init();
+                cleaner.init();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
