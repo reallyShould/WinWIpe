@@ -216,5 +216,10 @@ namespace WinWipe
             grammer.Owner = this;
             grammer.Show();
         }
+
+        private void HelpButtonXAML_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }

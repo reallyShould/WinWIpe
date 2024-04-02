@@ -117,7 +117,7 @@ namespace WinWipe
             try
             {
                 await Task.Run(() => FullRemove($"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
-                await Task.Run(() => FullRemove($"C:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
+                //await Task.Run(() => FullRemove($"C:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d)); TEST IT
 
             }
             catch (Exception ex)
