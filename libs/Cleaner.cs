@@ -33,10 +33,10 @@ namespace WinWipe
         {
             browserCache = new Dictionary<string, string>()
             {
-                { "chrome.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
+                { "chrome.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
                 { "firefox.exe", GetFirefoxCache(SysAdd.user_name) },
-                { "opera.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
-                { "yandex.exe", $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
+                { "opera.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
+                { "yandex.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
             };
             SysAdd.init();
         }
@@ -44,7 +44,7 @@ namespace WinWipe
         // return path to firefox cache
         public string GetFirefoxCache(string username)
         {
-            string path = $"C:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
+            string path = $"{SysAdd.activeDisk}:\\Users\\{username}\\AppData\\Local\\Mozilla\\Firefox\\Profiles";
             if (Directory.Exists(path))
             {
                 var tmp = Directory.GetDirectories(path);
@@ -116,8 +116,8 @@ namespace WinWipe
             SysAdd.AddLog($"\t\tCleaning temporary files", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
             try
             {
-                await Task.Run(() => FullRemove($"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
-                //await Task.Run(() => FullRemove($"C:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d)); TEST IT
+                await Task.Run(() => FullRemove($"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
+                //await Task.Run(() => FullRemove($"{SysAdd.activeDisk}:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d)); TEST IT
 
             }
             catch (Exception ex)
@@ -183,7 +183,7 @@ namespace WinWipe
         public void CleanDownloads(List<string> item, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
         {
             SysAdd.AddLog($"\t\tCleaning downloads", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
-            foreach (var file in Directory.GetFiles($"C:\\Users\\{SysAdd.user_name}\\Downloads"))
+            foreach (var file in Directory.GetFiles($"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\Downloads"))
             {
                 foreach (var im in item)
                 {

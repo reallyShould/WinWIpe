@@ -203,10 +203,14 @@ namespace WinWipe
 
         private void GrammerButtonXAML_Click(object sender, RoutedEventArgs e)
         {
-            Grammer grammer = new Grammer();
-            grammer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            grammer.Owner = this;
-            grammer.Show();
+            try
+            {
+                Grammer grammer = new Grammer();
+                grammer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                grammer.Owner = this;
+                grammer.Show();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void HelpButtonXAML_Click(object sender, RoutedEventArgs e)

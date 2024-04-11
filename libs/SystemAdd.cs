@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -19,12 +20,15 @@ namespace WinWipe
         public bool admin = false;
         public string defaultLogDir;
         public string defaultLogFile;
+        public char activeDisk;
 
         // Actions
         public void init()
         {
-            defaultLogDir = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
-            defaultLogFile = $"C:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
+            activeDisk = getActiveDisk();
+
+            defaultLogDir = $"{activeDisk}:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe";
+            defaultLogFile = $"{activeDisk}:\\Users\\{user_name}\\AppData\\Roaming\\WinWipe\\clean.log";
 
             fullSize = 0;
             installedSoftware = GetInstalledSoftware();
@@ -32,8 +36,8 @@ namespace WinWipe
             // ADMIN CHECK
             try
             {
-                Directory.CreateDirectory("C:\\Windows\\FolderForTest");
-                Directory.Delete("C:\\Windows\\FolderForTest");
+                Directory.CreateDirectory($"{activeDisk}:\\Windows\\FolderForTest");
+                Directory.Delete($"{activeDisk}:\\Windows\\FolderForTest");
                 admin = true;
             }
             catch
@@ -45,6 +49,21 @@ namespace WinWipe
             if (!Directory.Exists(defaultLogDir))
                 Directory.CreateDirectory(defaultLogDir);
 
+        }
+
+        private char getActiveDisk()
+        {
+            char disk = 'C';
+            List<char> disks = "ABCDEFG".ToList();
+            foreach (var i in disks) 
+            { 
+                if (Directory.Exists($"{i}:\\Users"))
+                {
+                    disk = i;
+                    break;
+                }
+            }
+            return disk;
         }
 
         public void AddLog(string message, TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Dispatcher d)
@@ -71,7 +90,6 @@ namespace WinWipe
                     LogsTextBoxXAML.AppendText($"{message}\n");
                 }));
                 log.Append($"({DateTime.Now}) {message}\n");
-                Debug.WriteLine(log.ToString());
             }
             LogScrollXAML.ScrollToEnd();
         }
