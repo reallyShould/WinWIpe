@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,10 +39,7 @@ namespace WinWipe
                 Directory.Delete($"{activeDisk}:\\Windows\\FolderForTest");
                 admin = true;
             }
-            catch
-            {
-                admin = false;
-            }
+            catch { admin = false; }
 
             // CREATE LOG FOLDER
             if (!Directory.Exists(defaultLogDir))
@@ -160,7 +156,7 @@ namespace WinWipe
 
         public string outError(Exception ex)
         {
-            if (ex is DirectoryNotFoundException) return "[Not Found]";
+            if (ex is DirectoryNotFoundException || ex is FileNotFoundException) return "[Not Found]";
             else if (ex is UnauthorizedAccessException) return "[Access Denied]";
             else return $"[Error] {ex.Message}";
         }
