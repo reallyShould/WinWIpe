@@ -56,6 +56,11 @@ namespace WinWipe
                     if (DateTime.Equals(timeNow, timeOfUsed))
                     {
                         output = dir + "\\cache2\\entries";
+                        break;
+                    }
+                    else
+                    {
+                        output = "NONE";
                     }
                 }
                 return output;
