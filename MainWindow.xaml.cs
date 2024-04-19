@@ -1,32 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using WinForms = System.Windows.Forms;
 
 namespace WinWipe
 {
-    /// TODO
-    /// System info
-
-
     public partial class MainWindow : Window
     {
-        //Refactor 
         SystemAdd SysAdd = new SystemAdd();
         Cleaner cleaner = new Cleaner();
 
-        //MAIN VARIABLES
         static public string version = "1.1";
+        static public string authors = "reallyShould";
         public string customFolder = null;
         public int counter = 0;
-        public string start_message = $"=================\nWinWipe by reallyShould\nVersion {version}\n=================\n";
+        public string start_message = $"=================\nWinWipe by {authors}\nVersion {version}\n=================\n";
 
-
-        List<string> defaultBrowsers = new List<string>() { "chrome.exe", "firefox.exe", "opera.exe", "yandex.exe" };
-
-        //DOWNLOADS LISTS
         List<string> apps = new List<string>() { ".exe", ".msi" };
         List<string> audio = new List<string>() { ".mp3", ".wav", ".ogg", ".aac", ".flac", ".alac", ".dsd" };
         List<string> video = new List<string>() { ".mp4", ".mov", ".wmv", ".avi", ".mkv", ".avchd" };
@@ -40,7 +33,6 @@ namespace WinWipe
         Dictionary<string, CheckBox> checkersDownloads = new Dictionary<string, CheckBox>();
         Dictionary<string, List<string>>  checkersDownloadsDes = new Dictionary<string, List<string>>();
 
-
         public MainWindow()
         {
             try
@@ -51,7 +43,7 @@ namespace WinWipe
                 cleaner.init();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
-            
+
 
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -84,7 +76,6 @@ namespace WinWipe
             };
 
             
-
             //DICTS FOR DOWNLOADS
             checkersDownloads = new Dictionary<string, CheckBox>()
             {
@@ -110,7 +101,6 @@ namespace WinWipe
         }
 
         //BUTTONS EVENTS
-
         private void LogsButtonXAML_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(new Action(() =>
@@ -118,11 +108,7 @@ namespace WinWipe
                 try
                 {
                     cleaner.writeLogs();
-
-                    Log_Viewer log_Viewer = new Log_Viewer(SysAdd.defaultLogDir);
-                    log_Viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    log_Viewer.Owner = this;
-                    log_Viewer.Show();
+                    Process.Start("explorer.exe", SysAdd.defaultLogDir);
                 }
                 catch (Exception ex)
                 {
@@ -155,13 +141,10 @@ namespace WinWipe
             Dispatcher.Invoke(new Action(() => SysAdd.ResetFinal(FinalLabelXAML)));
             CleanButtonXAML.IsEnabled = false;
 
-            // FIX IT PLS
-            // WTF ADAM? FIX IT!!!!!
             Dispatcher.Invoke(new Action(() => SysAdd.AddLog("", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
             Dispatcher.Invoke(new Action(() => SysAdd.AddLog("Clean start", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
             Dispatcher.Invoke(new Action(() => SysAdd.AddLog("sep", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher)));
 
-            //MAIN
             foreach (FrameworkElement checkBox in StackPanelXAML.Children)
             {
                 if (checkBox is CheckBox || checkers.ContainsKey(checkBox.Name))
@@ -189,7 +172,11 @@ namespace WinWipe
                     {
                         if (checkersDownloads[checkBox.Name].IsChecked == true)
                         {
-                            Dispatcher.Invoke(new Action(() => cleaner.CleanDownloads(checkersDownloadsDes[checkBox.Name], LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher)));
+                            Dispatcher.Invoke(new Action(() => cleaner.CleanDownloads(checkersDownloadsDes[checkBox.Name], 
+                                                                                      LogsTextBoxXAML, 
+                                                                                      LogScrollXAML, 
+                                                                                      FinalLabelXAML, 
+                                                                                      Application.Current.Dispatcher)));
                         }
                     }
                     catch (Exception err)
@@ -215,7 +202,14 @@ namespace WinWipe
 
         private void HelpButtonXAML_Click(object sender, RoutedEventArgs e)
         {
-            
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile("", $"{SysAdd.defaultLogDir}\\About.html");
+                }
+                Process.Start($"{SysAdd.defaultLogDir}\\About.html");
+            } catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
     }
 }

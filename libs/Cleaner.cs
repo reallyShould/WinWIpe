@@ -122,7 +122,7 @@ namespace WinWipe
             try
             {
                 await Task.Run(() => FullRemove($"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
-                //await Task.Run(() => FullRemove($"{SysAdd.activeDisk}:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d)); TEST IT
+                await Task.Run(() => FullRemove($"{SysAdd.activeDisk}:\\Windows\\Temp", LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d));
 
             }
             catch (Exception ex)
