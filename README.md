@@ -41,4 +41,4 @@ WinWipe - это приложение для Windows, разработанное
 - **1.0:** Что-то нестабильное
 - **1.1:** Подключение Grammer
 
-![image](https://github.com/reallyShould/WinWIpe/assets/77869589/b65806f4-efef-4b48-9b27-4ee2f26f264e)
+![image](https://github.com/reallyShould/WinWipe/assets/77869589/d8dd4c0b-80df-4df7-be8d-d263156ef8b6)
