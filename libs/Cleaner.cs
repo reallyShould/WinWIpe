@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace WinWipe
 {
@@ -31,14 +32,15 @@ namespace WinWipe
 
         public void init()
         {
+            SysAdd.init();
             browserCache = new Dictionary<string, string>()
             {
                 { "chrome.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache" },
                 { "firefox.exe", GetFirefoxCache(SysAdd.user_name) },
+                //{ "firefox.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Mozilla\\Firefox\\Profiles" },
                 { "opera.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Opera Software\\Opera Stable\\Cache" },
                 { "yandex.exe", $"{SysAdd.activeDisk}:\\Users\\{SysAdd.user_name}\\AppData\\Local\\Yandex\\YandexBrowser\\User Data\\Default\\Cache" }
             };
-            SysAdd.init();
         }
 
         // return path to firefox cache
