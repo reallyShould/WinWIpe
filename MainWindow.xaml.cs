@@ -204,9 +204,12 @@ namespace WinWipe
         {
             try
             {
-                using (var client = new WebClient())
+                if (!File.Exists($"{SysAdd.defaultLogDir}\\About.html"))
                 {
-                    client.DownloadFile("https://github.com/reallyShould/WinWipe/releases/download/1.1b2/About.html", $"{SysAdd.defaultLogDir}\\About.html");
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("https://github.com/reallyShould/WinWipe/releases/download/1.1b2/About.html", $"{SysAdd.defaultLogDir}\\About.html");
+                    }
                 }
                 Process.Start($"{SysAdd.defaultLogDir}\\About.html");
             } catch (Exception ex) { MessageBox.Show(ex.Message); }
