@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -44,12 +45,11 @@ namespace WinWipe
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
-
             SelectScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogScrollXAML.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             LogsTextBoxXAML.Text = start_message;
 
-            Title = $"WinWipe {version} [{SysAdd.user_name}] Admin: {SysAdd.admin}";
+            Title = $"WinWipe {version} [{SysAdd.user_name}] Admin: {SysAdd.admin} Disk: {SysAdd.activeDisk}";
 
             if (customFolder == null)
             {
@@ -63,7 +63,9 @@ namespace WinWipe
                 { "RecycleCheckerXAML", RecycleCheckerXAML },
                 { "UpdatesCheckerXAML", UpdatesCheckerXAML },
                 { "CustomFolderCheckerXAML", CustomFolderCheckerXAML },
-                { "WebCacheCheckerXAML", WebCacheCheckerXAML }
+                { "WebCacheCheckerXAML", WebCacheCheckerXAML },
+                { "CrushDumpsCheckerXAML", CrushDumpsCheckerXAML },
+                { "SteamCacheCheckerXAML", SteamCacheCheckerXAML }
             };
 
             checkersDes = new Dictionary<string, Action>()
@@ -72,7 +74,9 @@ namespace WinWipe
                 { "RecycleCheckerXAML", () => cleaner.CleanRecycleBin(LogsTextBoxXAML, LogScrollXAML, CleanButtonXAML) },
                 { "UpdatesCheckerXAML", () => cleaner.CleanOldUpdates(LogsTextBoxXAML, LogScrollXAML) },
                 { "CustomFolderCheckerXAML", () => cleaner.CleanCustomFolder(customFolder, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
-                { "WebCacheCheckerXAML", () => cleaner.CleanWebCache(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) }
+                { "WebCacheCheckerXAML", () => cleaner.CleanWebCache(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "CrushDumpsCheckerXAML", () => cleaner.CleanCrushDumps(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) },
+                { "SteamCacheCheckerXAML", () => cleaner.CleanSteamCache(LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, Application.Current.Dispatcher) }
             };
 
             

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -223,6 +224,42 @@ namespace WinWipe
             catch (Exception ex) 
             { 
                 SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher); 
+            }
+        }
+
+        public void CleanCrushDumps(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
+        {
+            string CrushDumps = $"C:\\Users\\{SysAdd.user_name}\\AppData\\Local\\CrashDumps";
+            SysAdd.AddLog($"\t\tCleaning CrushDumps folder", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+            try
+            {
+                if (Directory.Exists(CrushDumps))
+                {
+                    FullRemove(CrushDumps, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d);
+                }
+                else
+                {
+                    SysAdd.AddLog($"[Not Found] CrushDumps not exist", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+                }
+            }
+            catch (Exception ex)
+            {
+                SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+            }
+        }
+
+        public void CleanSteamCache(TextBox LogsTextBoxXAML, ScrollViewer LogScrollXAML, Label FinalLabelXAML, Dispatcher d)
+        {
+            SysAdd.AddLog($"\t\tCleaning steam cache", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
+            try
+            {
+                string SteamCache = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam", "InstallPath", null);
+                SteamCache += "\\steam\\cached";
+                FullRemove(SteamCache, LogsTextBoxXAML, LogScrollXAML, FinalLabelXAML, d);
+            }
+            catch (Exception ex)
+            {
+                SysAdd.AddLog($"{SysAdd.outError(ex)} {ex.Message}", LogsTextBoxXAML, LogScrollXAML, Application.Current.Dispatcher);
             }
         }
 

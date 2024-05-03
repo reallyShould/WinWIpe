@@ -21,7 +21,10 @@
                 <CheckBox Width="100" x:Name="TmpCheckerXAML" Content="Temporary" Background="#00B09E" FontFamily="Corbel"/>
                 <CheckBox Width="100" x:Name="RecycleCheckerXAML" Content="Recycle Bin" Background="#00B09E" FontFamily="Corbel"/>
                 <CheckBox Width="100" x:Name="UpdatesCheckerXAML" Content="Old updates" Background="#00B09E" FontFamily="Corbel"/>
+                <CheckBox Width="100" x:Name="CrushDumpsCheckerXAML" Content="Crush Dumps"  Background="#00B09E" FontFamily="Corbel"/>
+                <Label x:Name="SoftwareLabelXAML" Content="Software" Background="#005E55" FontSize="9" Foreground="#00B09E"/>
                 <CheckBox Width="100" x:Name="WebCacheCheckerXAML" Content="Web Cache"  Background="#00B09E" FontFamily="Corbel"/>
+                <CheckBox Width="100" x:Name="SteamCacheCheckerXAML" Content="Steam Cache"  Background="#00B09E" FontFamily="Corbel"/>
                 <Label x:Name="DownloadsLabelXAML" Content="Downloads" Background="#005E55" FontSize="9" Foreground="#00B09E"/>
                 <CheckBox Width="100" x:Name="ExeCheckerXAML" Content="Apps" Background="#00B09E" FontFamily="Corbel"/>
                 <CheckBox Width="100" x:Name="AudioCheckerXAML" Content="Music" Background="#00B09E" FontFamily="Corbel"/>
