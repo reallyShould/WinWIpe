@@ -50,10 +50,10 @@ namespace WinWipe
         private char getActiveDisk()
         {
             char disk = 'C';
-            List<char> disks = "ABCDEFG".ToList();
+            List<char> disks = "ABDEFG".ToList();
             foreach (var i in disks) 
             { 
-                if (Directory.Exists($"{i}:\\Users"))
+                if (Directory.Exists($"{i}:\\Users\\{user_name}"))
                 {
                     disk = i;
                     break;

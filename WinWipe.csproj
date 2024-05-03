@@ -171,7 +171,6 @@
     <Resource Include="Icon\data-cleaning2.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Help.html" />
     <Resource Include="data-cleaning2.ico" />
     <Content Include="Grammer\ascii.py" />
     <Content Include="Grammer\functions\audio.py" />
