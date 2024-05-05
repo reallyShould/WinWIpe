@@ -15,7 +15,7 @@ namespace WinWipe
         SystemAdd SysAdd = new SystemAdd();
         Cleaner cleaner = new Cleaner();
 
-        static public string version = "1.1";
+        static public string version = "1.2";
         static public string authors = "reallyShould";
         public string customFolder = null;
         public int counter = 0;
